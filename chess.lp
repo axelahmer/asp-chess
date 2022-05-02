@@ -57,20 +57,20 @@ being_guarded(
 
 % rooks guarding positions - horizontal
 being_guarded(Row, Low..Col-1; Row, Col+1..High)
- :- High = #min{Col2-1 : 
+ :- High = #min{Col2 : 
     enemy(Row, Col2), Col2 > Col;
     n: #true},
-    Low = #max{Col2+1 : 
+    Low = #max{Col2 : 
     enemy(Row, Col2), Col > Col2; 
     1: #true},
     rook(Row, Col).
 
 % rooks guarding positions - vertical
 being_guarded(Low..Row-1, Col; Row+1..High, Col)
- :- High = #min{Row2-1 : 
+ :- High = #min{Row2 : 
     enemy(Row2, Col), Row2 > Row;
     n: #true},
-    Low = #max{Row2+1 : 
+    Low = #max{Row2 : 
     enemy(Row2, Col), Row > Row2; 
     1: #true},
     rook(Row, Col).
@@ -78,11 +78,11 @@ being_guarded(Low..Row-1, Col; Row+1..High, Col)
 % bishops guarding positions - slash
 being_guarded(Row+UpBounds, Col+UpBounds; Row-LowBounds, Col-LowBounds)
  :- 
-    High = #min{Row2-Row : 
-    enemy(Row2, Col2), Row2-Row == Col2-Col, Row2 > Row;
+    High = #min{Row2-Row1 : 
+    enemy(Row2, Col2), Row2-Row == Col2-Col, Row1=Row, Row2 > Row;
     n: #true},
-    Low = #max{Row-Row2 : 
-    enemy(Row2, Col2), Row-Row2 == Col-Col2, Row > Row2; 
+    Low = #max{Row1-Row2 : 
+    enemy(Row2, Col2), Row-Row2 == Col-Col2, Row1=Row, Row > Row2; 
     1: #true},
     bishop(Row, Col),
     LowBounds = 1..Low,
@@ -91,11 +91,11 @@ being_guarded(Row+UpBounds, Col+UpBounds; Row-LowBounds, Col-LowBounds)
 % bishops guarding positions - backslash
 being_guarded(Row+UpBounds, Col-UpBounds; Row-LowBounds, Col+LowBounds)
  :- 
-    High = #min{Row2-Row : 
-    enemy(Row2, Col2), Row2-Row == Col-Col2, Row2 > Row;
+    High = #min{Row2-Row1 : 
+    enemy(Row2, Col2), Row2-Row == Col-Col2, Row1=Row, Row2 > Row;
     n: #true},
-    Low = #max{Row-Row2 : 
-    enemy(Row2, Col2), Row-Row2 == Col2-Col, Row > Row2; 
+    Low = #max{Row1-Row2 : 
+    enemy(Row2, Col2), Row-Row2 == Col2-Col, Row1=Row, Row > Row2; 
     1: #true},
     bishop(Row, Col),
     LowBounds = 1..Low,
@@ -105,20 +105,20 @@ being_guarded(Row+UpBounds, Col-UpBounds; Row-LowBounds, Col+LowBounds)
 
 % queens guarding positions - horizontal
 being_guarded(Row, Low..Col-1; Row, Col+1..High)
- :- High = #min{Col2-1 : 
+ :- High = #min{Col2 : 
     enemy(Row, Col2), Col2 > Col;
     n: #true},
-    Low = #max{Col2+1 : 
+    Low = #max{Col2 : 
     enemy(Row, Col2), Col > Col2; 
     1: #true},
     queen(Row, Col).
 
 % queens guarding positions - vertical
 being_guarded(Low..Row-1, Col; Row+1..High, Col)
- :- High = #min{Row2-1 : 
+ :- High = #min{Row2 : 
     enemy(Row2, Col), Row2 > Row;
     n: #true},
-    Low = #max{Row2+1 : 
+    Low = #max{Row2 : 
     enemy(Row2, Col), Row > Row2; 
     1: #true},
     queen(Row, Col).
@@ -126,11 +126,11 @@ being_guarded(Low..Row-1, Col; Row+1..High, Col)
 % queens guarding positions - slash
 being_guarded(Row+UpBounds, Col+UpBounds; Row-LowBounds, Col-LowBounds)
  :- 
-    High = #min{Row2-Row : 
-    enemy(Row2, Col2), Row2-Row == Col2-Col, Row2 > Row;
+    High = #min{Row2-Row1 : 
+    enemy(Row2, Col2), Row2-Row == Col2-Col, Row1=Row, Row2 > Row;
     n: #true},
-    Low = #max{Row-Row2 : 
-    enemy(Row2, Col2), Row-Row2 == Col-Col2, Row > Row2; 
+    Low = #max{Row1-Row2 : 
+    enemy(Row2, Col2), Row-Row2 == Col-Col2, Row1=Row, Row > Row2; 
     1: #true},
     queen(Row, Col),
     LowBounds = 1..Low,
@@ -139,11 +139,11 @@ being_guarded(Row+UpBounds, Col+UpBounds; Row-LowBounds, Col-LowBounds)
 % queens guarding positions - backslash
 being_guarded(Row+UpBounds, Col-UpBounds; Row-LowBounds, Col+LowBounds)
  :- 
-    High = #min{Row2-Row : 
-    enemy(Row2, Col2), Row2-Row == Col-Col2, Row2 > Row;
+    High = #min{Row2-Row1 : 
+    enemy(Row2, Col2), Row2-Row == Col-Col2, Row1=Row, Row2 > Row;
     n: #true},
-    Low = #max{Row-Row2 : 
-    enemy(Row2, Col2), Row-Row2 == Col2-Col, Row > Row2; 
+    Low = #max{Row1-Row2 : 
+    enemy(Row2, Col2), Row-Row2 == Col2-Col, Row1=Row, Row > Row2; 
     1: #true},
     queen(Row, Col),
     LowBounds = 1..Low,
@@ -154,7 +154,6 @@ being_guarded(Row+UpBounds, Col-UpBounds; Row-LowBounds, Col+LowBounds)
 % pick positions to place the pieces
 {king(Row, Col):row(Row), col(Col)} = 1.
 {pawn(Row, Col): row(Row), col(Col)}.
-% {knight(Row, Col); rook(Row, Col); bishop(Row, Col) : row(Row), col(Col)}.
 {queen(Row, Col): row(Row), col(Col)}.
 {knight(Row, Col): row(Row), col(Col)}.
 {rook(Row, Col): row(Row), col(Col)}.
