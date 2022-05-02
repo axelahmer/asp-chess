@@ -8,14 +8,16 @@ def read_prolog(arr, dimension):
         row, col = chess[index+1:index_end].split(',')
         row, col = int(row), int(col)
         row, col = row-1, col-1
-        if chess.startswith("knight"):
-            board[row][col] = '\u2658'
-        elif chess.startswith("pawn"):
-            board[row][col] = '\u2659'
+        if chess.startswith("queen"):
+            board[row][col] = '\u2655'
         elif chess.startswith("rook"):
             board[row][col] = '\u2656'
         elif chess.startswith("bishop"):
             board[row][col] = '\u2657'
+        elif chess.startswith("knight"):
+            board[row][col] = '\u2658'
+        elif chess.startswith("pawn"):
+            board[row][col] = '\u2659'
         elif chess.startswith("king"):
             board[row][col] = '\u265A'
     return board
