@@ -34,6 +34,9 @@ checkmate :- #count
 % the king cant be on the same position as knight
 :- king(Row, Col), knight(Row, Col).
 :- knight(Row, Col), pawn(Row, Col).
+:- knight(Row, Col), rook(Row, Col).
+:- rook(Row, Col), pawn(Row, Col).
+:- rook(Row, Col), king(Row, Col).
 
 % pawns guarding positions
 being_guarded(Row+1, Col+1; Row+1, Col-1) :- pawn(Row, Col).
@@ -44,22 +47,51 @@ being_guarded(
     Row-2, Col-1; Row-1, Col-2; Row+1, Col-2; Row+2, Col-1
 ) :- knight(Row, Col).
 
+% rooks guarding positions - horizontal
+being_guarded(Row, Low..Col-1; Row, Col+1..High)
+ :- High = #min{Col2-1 : 
+    enemy(Row, Col2), Col2 > Col;
+    n: #true},
+    Low = #max{Col2+1 : 
+    enemy(Row, Col2), Col > Col2; 
+    1: #true},
+    rook(Row, Col).
+
+% rooks guarding positions - vertical
+being_guarded(Low..Row-1, Col; Row+1..High, Col)
+ :- High = #min{Row2-1 : 
+    enemy(Row2, Col), Row2 > Row;
+    n: #true},
+    Low = #max{Row2+1 : 
+    enemy(Row2, Col), Row > Row2; 
+    1: #true},
+    rook(Row, Col).
+
 % pick a position to place king
 {king(Row, Col):row(Row), col(Col)} = 1.
 
 % pick positions to place pawns 
-{pawn(Row, Col): row(Row), col(Col)}.
+% {pawn(Row, Col): row(Row), col(Col)}.
 
 % pick positions to place knight 
 {knight(Row, Col): row(Row), col(Col)}.
 
+{rook(Row, Col): row(Row), col(Col)}.
+
 % limit the number of chess pieces
 enemy(Row, Col) :- knight(Row, Col).
 enemy(Row, Col) :- pawn(Row, Col).
-:- #count{ (Row, Col):enemy(Row, Col) } = N, N > 3.
+enemy(Row, Col) :- rook(Row, Col).
+
+% % lame way to specified boundary of the board
+% boundary(0, Col; n+1, Col) :- col(Col).
+% boundary(Row, 0; Row, n+1) :- row(Row).
+
+:- #count{ (Row, Col): enemy(Row, Col) } = N, N > 2.
 
 
 #show king/2.
 #show knight/2.
 #show pawn/2.
+#show rook/2.
 % #show enemy/2.

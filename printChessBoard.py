@@ -12,6 +12,8 @@ def read_prolog(arr, dimension):
             board[row][col] = '\u2658'
         elif chess.startswith("pawn"):
             board[row][col] = '\u2659'
+        elif chess.startswith("rook"):
+            board[row][col] = '\u2656'
         elif chess.startswith("king"):
             board[row][col] = '\u265A'
     return board
