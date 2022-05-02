@@ -87,7 +87,7 @@ enemy(Row, Col) :- rook(Row, Col).
 % boundary(0, Col; n+1, Col) :- col(Col).
 % boundary(Row, 0; Row, n+1) :- row(Row).
 
-:- #count{ (Row, Col): enemy(Row, Col) } = N, N > 2.
+:- #count{ (Row, Col): enemy(Row, Col) } = N, N > chess_count.
 
 
 #show king/2.

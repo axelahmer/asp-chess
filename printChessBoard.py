@@ -29,8 +29,10 @@ def print_board(board, dimension):
     print(linebreak)
 
 
-def run_clingo(n):
-    os.system("clingo chess.lp --const n={} 0 > output.txt".format(n)) 
+def run_clingo(n, chess_count=None):
+    os.system("clingo chess.lp --const n={} \
+    {} 0 > output.txt".format(n, '--const chess_count={}'
+    .format(chess_count) if chess_count else '')) 
 
 def read_output_and_print(n):
     with open("output.txt", "r") as reader:
@@ -56,5 +58,6 @@ if __name__ == "__main__":
     #     print_board(board, dimension)
 
     n = int(input("Enter board dimension \n"))
-    run_clingo(n)
+    chess_count = int(input("Enter chess piece count \n"))
+    run_clingo(n, chess_count)
     read_output_and_print(n)
