@@ -1,0 +1,33 @@
+notes from https://www.youtube.com/watch?v=Rn-jPtQjFro:
+
+STRIPS planning involve:
+https://en.wikipedia.org/wiki/Stanford_Research_Institute_Problem_Solver
+
+fluents (things that will change):
+    - the move predicate
+    - potentially the chessman predicate for all T? (placing pieces on the board)
+
+inital and goal state:
+    initial state:
+        T=1, chessman predicate (position of pieces at T=1, i.e. some starting configuration).
+        whos turn is it?
+        en passant?
+    
+    goal state:
+        checkmate at some T=N?
+
+set of actions, consistion of pre- and postconditions:
+    - preconditions tell us when an action is applicable.
+        when a move can be made
+            does T-1 have to be fully defined before the move from T-1 to T can be made?
+            perhaps better to just restrict that the moving piece must be at the prev location,
+                and can move to the destination. (not the whole board being fixed) 
+    - postconditions tell us about the effects on an action.
+        poscondition for a move at time T means the board position at T+1 is fully defined?
+
+number k of allowed actions:
+    all the moves for pieces of the correct color currently on the board.
+
+
+additional notes:
+we likely want to bound time(1..k), then try to find the minimum soln to getting checkmate from making a series of moves.
