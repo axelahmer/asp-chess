@@ -1,0 +1,30 @@
+% week 9 notes
+
+% attacking defines how each piece attacks
+attacking(X1,Y1,X2,Y2,T)
+
+% pieces that dont move between moves:
+chessman(type,color,X,Y,T+1) :- 
+	chessman(type,color,X,Y,T),
+	not move(X, Y, _, _, T), % the piece is not the moving piece
+	not move(_, _, X, Y, T), % the piece is not the piece being taken
+
+% pieces that do move between moves:
+	
+
+% defining move
+{move(X_From, Y_From, X_To, Y_To,T): time(T), loc(X_From), loc(X_From), loc(X_To), loc(Y_To) }=1 :- 
+time(T).
+
+
+	
+chessman(_,white,X_From,Y_From,T), % the piece must be white
+	attacking(X_From,Y_From,X_To,Y_To,T), % only time not true - pawn
+
+
+
+things we could maybe minimize:
+N, number of pieces on board, number of pieces to add to board, piece values
+consider the idea of using minimize and maximize for minimax search
+
+#show chessman/5
