@@ -1,25 +1,29 @@
 import os
 
-def read_prolog(arr, dimension):
-    board = [[" "] * dimension for _ in range(8)]
+def read_prolog(arr, dimension, k):
+    board = [[[" "] * dimension for _ in range(dimension)] for _ in range(k + 2)]
+    print(board)
     for chess in arr:
+        if chess.startswith('move'):
+            continue
         index = chess.find('(')
         index_end = chess.find(')')
-        row, col = chess[index+1:index_end].split(',')
-        row, col = int(row), int(col)
+        chesspiece, row, col, time = chess[index+1:index_end].split(',')
+
+        row, col, time = int(row), int(col), int(time) -1
         row, col = row-1, col-1
-        if chess.startswith("queen"):
-            board[row][col] = '\u2655'
-        elif chess.startswith("rook"):
-            board[row][col] = '\u2656'
-        elif chess.startswith("bishop"):
-            board[row][col] = '\u2657'
-        elif chess.startswith("knight"):
-            board[row][col] = '\u2658'
-        elif chess.startswith("pawn"):
-            board[row][col] = '\u2659'
-        elif chess.startswith("king"):
-            board[row][col] = '\u265A'
+        if chesspiece== "queen" :
+            board[time][row][col] = '\u2655'
+        elif chesspiece== "rook" :
+            board[time][row][col] = '\u2656'
+        elif chesspiece== "bishop" :
+            board[time][row][col] = '\u2657'
+        elif chesspiece== "knight" :
+            board[time][row][col] = '\u2658'
+        elif chesspiece== "pawn" :
+            board[time][row][col] = '\u2659'
+        elif chesspiece== "king" :
+            board[time][row][col] = '\u265A'
     return board
 
 
@@ -33,12 +37,11 @@ def print_board(board, dimension):
     print(linebreak)
 
 
-def run_clingo(n, chess_count=None):
-    os.system("clingo chess.lp --const n={} \
-    {} 0 > output.txt".format(n, '--const chess_count={}'
-    .format(chess_count) if chess_count else '')) 
+def run_clingo(n, k, knight_count=None):
+    os.system(f"clingo asp/simple.lp -c n={n} -c k={k} -c knight_count={knight_count} 10 > output.txt")
 
-def read_output_and_print(n):
+
+def read_output_and_print(n, k):
     with open("output.txt", "r") as reader:
         results = reader.readlines()
         ans_count = 0
@@ -47,9 +50,10 @@ def read_output_and_print(n):
                 ans_count += 1
                 i += 1
                 arr = results[i].split()
-                board = read_prolog(arr, n)
+                board = read_prolog(arr, n, k)
                 print("\nAnswer {}".format(ans_count) )
-                print_board(board, n)
+                for j in range(k):
+                    print_board(board[j], n)
 
 
 if __name__ == "__main__":
@@ -63,5 +67,6 @@ if __name__ == "__main__":
 
     n = int(input("Enter board dimension \n"))
     chess_count = int(input("Enter chess piece count \n"))
-    run_clingo(n, chess_count)
-    read_output_and_print(n)
+    k = int(input("Enter steps count \n"))
+    run_clingo(n, k, chess_count)
+    read_output_and_print(n, k)

@@ -1,0 +1,85 @@
+row(1..n).
+col(1..n).
+time(1..k).
+% Simple Problem: From a semi defined start position - plan to minimize the number of moves to checkmate black.
+
+% Problem: Find Checkmates with Given Pieces - Pawns(stage-1) 
+
+% Ideas
+% Answer set should include {King position}
+% Rules: 
+% Checkmate happens when all 3 constraints are satisfied:
+%     - The King is under atk
+%     - The King cannot move to a safe spot
+%     - The attacker cant be taken
+
+% NewRow, NewCol = King's movement
+checkmate(T) :- #count 
+    % set of King's valid move (not being guard by pawns)
+    {(NewRow, NewCol): 
+    (NewRow, NewCol) != (Row, Col), 
+    NewRow=Row-1..Row+1, 
+    NewCol=Col-1..Col+1, 
+    col(NewCol), row(NewRow),
+    not guarded(NewRow, NewCol,_,_, T)
+    } = N, 
+    % the king cnanot move to a safe spot
+    N=0, 
+    % the king is currently under attack
+    chessman(king, Row, Col,T), guarded(Row, Col,_,_, T). % guarded(Row,Col);
+
+:- not checkmate(k).
+
+% the pieces cant be on the same position TODO: Refactor this
+% :- chessman(king, Row, Col), chessman(X, Row, Col).
+:- chessman(X, Row, Col, T), chessman(Y, Row, Col, T), X!=Y.
+
+% pawns guarding positions
+guarded(Row+1, Col+1; Row+1, Col-1, T) :-
+    chessman(pawn, Row, Col, T), time(T).
+
+% knights guarding positions
+guarded(
+        Row+2, Col+1, Row, Col, T;
+        Row+1, Col+2, Row, Col, T;
+        Row-1, Col+2, Row, Col, T;
+        Row-2, Col+1, Row, Col, T;
+        Row-2, Col-1, Row, Col, T;
+        Row-1, Col-2, Row, Col, T;
+        Row+1, Col-2, Row, Col, T;
+        Row+2, Col-1, Row, Col, T) :-
+    chessman(knight, Row, Col, T).
+
+% create a chessman at t+1 that moved!
+chessman(Piece, NewRow, NewCol, T+1) :-
+    chessman(Piece,Row,Col,T), move(Row, Col, NewRow, NewCol, T).
+
+% add to the set of chessmen at t+1 all the men who have not moved.
+chessman(Piece, Row, Col, T+1) :-
+    chessman(Piece,Row,Col,T),
+    move(Row', Col', NewRow, NewCol, T),
+    (Row, Col) != (Row', Col'), 
+    row(NewRow), col(NewCol), row(Row'), col(Col'),
+    time(T). % TODO gotcha: a piece may have been taken.
+
+% chessman(Piece, Row, Col, T+1) :-
+%     not move(Row, Col, NewRow, NewCol, T),
+%     row(NewRow),
+%     col(NewCol)
+%     :chessman(Piece,Row,Col,T). % TODO except if it was a taken piece
+
+% { move(Row, Col, NewRow, NewCol, T) :chessman(_, Row, Col, T), guarded(NewRow, NewCol, Row, Col, T), row(Row), col(Col)} = 1 :- time(T).
+{ move(Row, Col, NewRow, NewCol, T) :
+    guarded(NewRow, NewCol, Row, Col, T),
+    row(NewRow),
+    col(NewCol),
+    chessman(_,Row,Col,T)}=1 :- time(T), T<k.
+
+
+% set initial board state
+{chessman(king,Row,Col,1) : row(Row), col(Col)} = 1.
+{chessman(knight,Row,Col,1) : row(Row), col(Col)} = knight_count.
+
+% #show king/2.
+#show chessman/4.
+#show move/5.
