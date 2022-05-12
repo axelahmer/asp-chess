@@ -37,7 +37,7 @@ def print_board(board, dimension):
 
 
 def run_clingo(n, k, knight_count=None):
-    os.system(f"clingo asp/simple.lp -c n={n} -c k={k} -c knight_count={knight_count} 10 > output.txt")
+    os.system(f"clingo asp/simple.lp asp/pieces.lp -c n={n} -c k={k} -c knight_count={knight_count} 10 > output.txt")
 
 
 def read_output_and_print(n, k):

@@ -34,22 +34,6 @@ check(T) :- chessman(king,Row,Col,T), guarded(Row,Col,_,_,T).
 % :- chessman(king, Row, Col), chessman(X, Row, Col).
 :- chessman(X, Row, Col, T), chessman(Y, Row, Col, T), X!=Y.
 
-% pawns guarding positions
-guarded(Row+1, Col+1; Row+1, Col-1, T) :-
-    chessman(pawn, Row, Col, T), time(T).
-
-% knights guarding positions
-guarded(
-        Row+2, Col+1, Row, Col, T;
-        Row+1, Col+2, Row, Col, T;
-        Row-1, Col+2, Row, Col, T;
-        Row-2, Col+1, Row, Col, T;
-        Row-2, Col-1, Row, Col, T;
-        Row-1, Col-2, Row, Col, T;
-        Row+1, Col-2, Row, Col, T;
-        Row+2, Col-1, Row, Col, T) :-
-    chessman(knight, Row, Col, T).
-
 % create a chessman at t+1 that moved!
 chessman(Piece, NewRow, NewCol, T+1) :-
     chessman(Piece,Row,Col,T), move(Row, Col, NewRow, NewCol, T).
