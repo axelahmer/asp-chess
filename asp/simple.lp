@@ -54,10 +54,14 @@ chessman(Piece, Row, Col, T+1) :-
 {chessman(knight,Row,Col,1) : row(Row), col(Col)} = knight_count.
 
 % it is not check at t<k:
-:- check(T), time(T), T<k.
+:- check(T) : time(T), T<N, checkmate(N).
 
-% enforce mate at time=k
-:- not checkmate(k).
+% enforce mate at time=N
+% :- not checkmate(N) : time(N), N<=k.
+
+:- check(1).
+#minimize{T:checkmate(N), time(N), time(T), T<N}.
+:- {checkmate(N) : time(N)}=0.
 
 % #show king/2.
 #show chessman/4.
