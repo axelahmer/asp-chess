@@ -2,7 +2,6 @@ import os
 
 def read_prolog(arr, dimension, k):
     board = [[[" "] * dimension for _ in range(dimension)] for _ in range(k + 2)]
-    print(board)
     for chess in arr:
         if chess.startswith('move'):
             continue
