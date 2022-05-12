@@ -80,8 +80,8 @@ chessman(Piece, Row, Col, T+1) :-
 {chessman(king,Row,Col,1) : row(Row), col(Col)} = 1.
 {chessman(knight,Row,Col,1) : row(Row), col(Col)} = knight_count.
 
-% it is not check at t=1:
-:- check(1).
+% it is not check at t<k:
+:- check(T), time(T), T<k.
 
 % enforce mate at time=k
 :- not checkmate(k).
