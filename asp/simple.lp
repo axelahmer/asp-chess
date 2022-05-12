@@ -24,11 +24,11 @@ checkmate(T) :- #count
     not guarded(NewRow, NewCol,_,_, T)
     } = N, 
     % the king cnanot move to a safe spot
-    N=0, 
+    N=0,
     % the king is currently under attack
-    chessman(king, Row, Col,T), guarded(Row, Col,_,_, T). % guarded(Row,Col);
+    chessman(king,Row,Col,T), guarded(Row,Col,_,_,T). % guarded(Row,Col);
 
-:- not checkmate(k).
+check(T) :- chessman(king,Row,Col,T), guarded(Row,Col,_,_,T).
 
 % the pieces cant be on the same position TODO: Refactor this
 % :- chessman(king, Row, Col), chessman(X, Row, Col).
@@ -79,6 +79,12 @@ chessman(Piece, Row, Col, T+1) :-
 % set initial board state
 {chessman(king,Row,Col,1) : row(Row), col(Col)} = 1.
 {chessman(knight,Row,Col,1) : row(Row), col(Col)} = knight_count.
+
+% it is not check at t=1:
+:- check(1).
+
+% enforce mate at time=k
+:- not checkmate(k).
 
 % #show king/2.
 #show chessman/4.
