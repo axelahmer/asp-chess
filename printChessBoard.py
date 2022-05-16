@@ -2,6 +2,7 @@ import os
 
 def read_prolog(arr, dimension, k):
     board = [[[" "] * dimension for _ in range(dimension)] for _ in range(k + 2)]
+    max_time = 0
     for chess in arr:
         if chess.startswith('move'):
             continue
@@ -10,6 +11,7 @@ def read_prolog(arr, dimension, k):
         chesspiece, row, col, time = chess[index+1:index_end].split(',')
 
         row, col, time = int(row), int(col), int(time) -1
+        max_time = max(time, max_time)
         row, col = row-1, col-1
         if chesspiece== "queen" :
             board[time][row][col] = '\u2655'
@@ -23,7 +25,7 @@ def read_prolog(arr, dimension, k):
             board[time][row][col] = '\u2659'
         elif chesspiece== "king" :
             board[time][row][col] = '\u265A'
-    return board
+    return board, max_time+1
 
 
 def print_board(board, dimension):
@@ -37,7 +39,7 @@ def print_board(board, dimension):
 
 
 def run_clingo(n, k, knight_count=None):
-    os.system(f"clingo asp/simple.lp asp/pieces.lp -c n={n} -c k={k} -c knight_count={knight_count} 2 > output.txt")
+    os.system(f"clingo asp/simple.lp asp/pieces.lp -c n={n} -c k={k} -c knight_count={knight_count} --opt-mode optN -n 10 > output.txt")
 
 
 def read_output_and_print(n, k):
@@ -49,9 +51,9 @@ def read_output_and_print(n, k):
                 ans_count += 1
                 i += 1
                 arr = results[i].split()
-                board = read_prolog(arr, n, k)
+                board, max_time = read_prolog(arr, n, k)
                 print("\nAnswer {}".format(ans_count) )
-                for j in range(k):
+                for j in range(max_time):
                     print_board(board[j], n)
 
 

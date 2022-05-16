@@ -46,22 +46,28 @@ chessman(Piece, Row, Col, T+1) :-
     guarded(NewRow, NewCol, Row, Col, T),
     row(NewRow),
     col(NewCol),
-    chessman(_,Row,Col,T)}=1 :- time(T), T<k.
+    chessman(_,Row,Col,T)}=1 :- time(T), T<N : checkmate(N).
 
 
 % set initial board state
 {chessman(king,Row,Col,1) : row(Row), col(Col)} = 1.
 {chessman(knight,Row,Col,1) : row(Row), col(Col)} = knight_count.
 
-% it is not check at t<k:
+% it is not check at t<N:
 :- check(T) : time(T), T<N, checkmate(N).
 
-% enforce mate at time=N
-% :- not checkmate(N) : time(N), N<=k.
-
+% there must be no check at time 1
 :- check(1).
-#minimize{T:checkmate(N), time(N), time(T), T<N}.
-:- {checkmate(N) : time(N)}=0.
+
+% minimize the number of moves until checkmate
+#minimize{N@1:checkmate(N)}.
+
+% there must be a checkmate
+:- not {checkmate(N) : time(N)}=1.
+
+% king cannot be in corner
+% :- chessman(king, Row, Col, 1), Col=(1;n), Row=(1;n).
+
 
 % #show king/2.
 #show chessman/4.
