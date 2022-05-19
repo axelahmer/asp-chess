@@ -27,7 +27,10 @@ def read_prolog(arr, dimension, k):
         elif chesspiece== "pawn" :
             board[time][row][col] = '\u2659'
         elif chesspiece== "king" :
-            board[time][row][col] = '\u265A'
+            if color == "white":
+                board[time][row][col] = '\u2654'
+            elif  color == "black":
+                board[time][row][col] = '\u265A'
     return board, max_time+1
 
 
