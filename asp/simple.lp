@@ -90,8 +90,12 @@ chessman(Piece, Color, Row, Col, T+1) :-
 
 % set initial board state
 {chessman(king, black, Row, Col, 1) : row(Row), col(Col)} = 1.
+{chessman(king, white, Row, Col, 1) : row(Row), col(Col)} = 1.
 {chessman(knight, white, Row, Col, 1) : row(Row), col(Col)} = knight_count.
 {chessman(knight, black, Row, Col, 1) : row(Row), col(Col)} = 1.
+
+% it cannot be the case that there is more than 1 chessman on a square
+:- chessman(P,Color,R,C,T), chessman(P',Color',R',C',T), (P,Color)!=(P',Color'), (R,C)==(R',C').
 
 % it is not check at t<N:
 :- check(T) : time(T), T<N, checkmate(N).
