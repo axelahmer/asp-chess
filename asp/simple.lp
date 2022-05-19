@@ -4,6 +4,8 @@ row(1..n).
 col(1..n).
 color(white).
 color(black).
+enemy(white,black).
+enemy(black,white).
 time(1..k).
 color_to_move(1, white).
 color_to_move(T, white) :- color_to_move(T-1, black), time(T).
@@ -87,6 +89,8 @@ chessman(Piece, Color, Row, Col, T+1) :-
     col(NewCol),
     chessman(_, _, Row, Col, T)}=1 :- time(T), T<N : checkmate(N).
 
+% it cannot be the case that a king moves into an attack from the enemy.
+:- enemy(Color,Enemy), chessman(king,Color,Row,Col,T), move(Row,Col,Row',Col',T), guarded(Row',Col',_,_,Enemy,T).
 
 % set initial board state
 {chessman(king, black, Row, Col, 1) : row(Row), col(Col)} = 1.
