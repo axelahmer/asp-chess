@@ -14,7 +14,8 @@ color_to_move(T, black) :- color_to_move(T-1, white), time(T).
 % Checkmate happens when all 3 constraints are satisfied:
 %     - The King is under atk
 %     - The King cannot move to a safe spot
-%     - The attacker cant be taken
+%     - The attacker cannot be taken (if 1 attacker)
+%     - The attacker cannot be blocked (if 1 attacker)
 
 possible_moves(Row', Col', Row, Col, T) :- 
     chessman(king, Color, Row, Col, T), 
