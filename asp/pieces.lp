@@ -9,17 +9,27 @@ guarded(Row+1, Col+1, Row, Col, T;
 
 % KNIGHTS
 guarded(
-        Row+2, Col+1, Row, Col, T;
-        Row+1, Col+2, Row, Col, T;
-        Row-1, Col+2, Row, Col, T;
-        Row-2, Col+1, Row, Col, T;
-        Row-2, Col-1, Row, Col, T;
-        Row-1, Col-2, Row, Col, T;
-        Row+1, Col-2, Row, Col, T;
-        Row+2, Col-1, Row, Col, T) :-
-    chessman(knight, _, Row, Col, T).
+        Row+2, Col+1, Row, Col, Color, T;
+        Row+1, Col+2, Row, Col, Color, T;
+        Row-1, Col+2, Row, Col, Color, T;
+        Row-2, Col+1, Row, Col, Color, T;
+        Row-2, Col-1, Row, Col, Color, T;
+        Row-1, Col-2, Row, Col, Color, T;
+        Row+1, Col-2, Row, Col, Color, T;
+        Row+2, Col-1, Row, Col, Color, T) :-
+    chessman(knight, Color, Row, Col, T).
 
 % KINGS
+guarded(
+    Row+1,  Col,    Row, Col, Color, T;
+    Row,    Col+1,  Row, Col, Color, T;
+    Row-1,  Col+1,  Row, Col, Color, T;
+    Row-1,  Col,    Row, Col, Color, T;
+    Row-1,  Col-1,  Row, Col, Color, T;
+    Row,    Col-1,  Row, Col, Color, T;
+    Row+1,  Col+1,  Row, Col, Color, T;
+    Row+1,  Col-1,  Row, Col, Color, T) :-
+    chessman(king, Color, Row, Col, T).
 
 % BISHOPS
 

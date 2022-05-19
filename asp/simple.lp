@@ -14,6 +14,22 @@ color_to_move(T, black) :- color_to_move(T-1, white), time(T).
 %     - The King cannot move to a safe spot
 %     - The attacker cant be taken
 
+possible_moves(Row', Col', Row, Col, T) :- 
+    chessman(king, Color, Row, Col, T), 
+    guarded(Row', Col', Row, Col, Color, T),
+    Color != Color2, color(Color2), row(Row'), col(Col'),
+    (Row', Col') != (Row2, Col2): guarded(Row2, Col2, Row3, Col3, Color2, T).
+    
+
+possible_moves(Row2, Col2, Row3, Col3, T) :- 
+    chessman(king, Color, Row, Col, T), 
+    % the king is under atk
+    guarded(Row, Col, Row2, Col2, Color2, T),
+    % but a friendly piece can take it out
+    guarded(Row2, Col2, Row3, Col3, Color, T),
+    Color != Color2,
+    chessman(_, white, Row3, Col3, T).
+
 % NewRow, NewCol = King's movement
 checkmate(T) :- 
     % set of King's valid move (not being guard by pawns)
@@ -23,16 +39,25 @@ checkmate(T) :-
     NewRow=Row-1..Row+1, 
     NewCol=Col-1..Col+1, 
     col(NewCol), row(NewRow),
-    not guarded(NewRow, NewCol,_,_, T)
+    not guarded(NewRow, NewCol,_,_, Color2, T)
     } = N, 
     % the king cannot move to a safe spot
     N=0,
     % the king is currently under attack
-    chessman(king,Color,Row,Col,T), guarded(Row,Col,_,_,T) : color_to_move(T, Color).
+    chessman(king,Color,Row,Col,T), 
+    guarded(Row,Col,_,_, Color2, T),
+    Color != Color2, 
+    color_to_move(T, Color).
 
 check(T) :-
-    guarded(Row, Col, _, _, T),
-    chessman(king, Color, Row, Col, T) : color_to_move(T, Color).
+    guarded(Row, Col, Row', Col', Color', T),
+    Color != Color';
+    chessman(king, Color, Row, Col, T), 
+    color_to_move(T, Color).
+
+check(1) :- 
+    guarded(Row, Col, _, _, white, 1),
+    chessman(king, black, Row, Col, 1).
 
 % the pieces cant be on the same position TODO: Refactor this
 :- chessman(X, _, Row, Col, T), chessman(Y, _, Row, Col, T), X!=Y.
@@ -55,7 +80,9 @@ chessman(Piece, Color, Row, Col, T+1) :-
 
 % it does not matter whos move it is - any color can move.
 { move(Row, Col, NewRow, NewCol, T) :
-    guarded(NewRow, NewCol, Row, Col, T),
+    guarded(NewRow, NewCol, Row, Col, Color, T),
+    % cannot take friendly piece down
+    not chessman(_, Color, NewRow, NewCol, T),
     row(NewRow),
     col(NewCol),
     chessman(_, _, Row, Col, T)}=1 :- time(T), T<N : checkmate(N).
@@ -64,6 +91,7 @@ chessman(Piece, Color, Row, Col, T+1) :-
 % set initial board state
 {chessman(king, black, Row, Col, 1) : row(Row), col(Col)} = 1.
 {chessman(knight, white, Row, Col, 1) : row(Row), col(Col)} = knight_count.
+{chessman(knight, black, Row, Col, 1) : row(Row), col(Col)} = 1.
 
 % it is not check at t<N:
 :- check(T) : time(T), T<N, checkmate(N).
@@ -83,4 +111,5 @@ chessman(Piece, Color, Row, Col, T+1) :-
 
 % #show king/2.
 #show chessman/5.
+#show possible_moves/5.
 #show move/5.

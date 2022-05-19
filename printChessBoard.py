@@ -8,7 +8,7 @@ def read_prolog(arr, dimension, k):
             continue
         index = chess.find('(')
         index_end = chess.find(')')
-        chesspiece, row, col, time = chess[index+1:index_end].split(',')
+        chesspiece, color, row, col, time = chess[index+1:index_end].split(',')
 
         row, col, time = int(row), int(col), int(time) -1
         max_time = max(time, max_time)
@@ -20,7 +20,10 @@ def read_prolog(arr, dimension, k):
         elif chesspiece== "bishop" :
             board[time][row][col] = '\u2657'
         elif chesspiece== "knight" :
-            board[time][row][col] = '\u2658'
+            if color == "white":
+                board[time][row][col] = '\u2658'
+            elif  color == "black":
+                board[time][row][col] = '\u265E'
         elif chesspiece== "pawn" :
             board[time][row][col] = '\u2659'
         elif chesspiece== "king" :
