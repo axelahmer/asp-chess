@@ -54,17 +54,18 @@ color_to_move(T, black) :- color_to_move(T-1, white), time(T).
 %     chessman(Piece, Color, Row, Col, T), 
 %     guarded(Row', Col', Row, Col, Color, T).
 
-% the king moves to a safe spot
+% the king moves to a safe spot and not on a friendly piece
 possible_moves(Row', Col', Row, Col, T) :- 
     chessman(king, Color, Row, Col, T), 
     guarded(Row', Col', Row, Col, Color, T),
     enemy(Color,EnemyColor),
     row(Row'),
     col(Col'),
-    (Row', Col') != (Row2, Col2) : guarded(Row2, Col2, Row3, Col3, EnemyColor, T).
+    (Row', Col') != (Row2, Col2) : guarded(Row2, Col2, _, _, EnemyColor, T),
+    not chessman(_,Color,Row',Col',T).
 
 % the king cannot step on it's own pieces
-:- chessman(_,Color,R',C',T), possible_moves(R',C',R,C,T), chessman(king, Color, R, C, T).
+% :- chessman(_,Color,R',C',T), possible_moves(R',C',R,C,T), chessman(king, Color, R, C, T).
 
 % a friendly piece can take out the sole attacking piece
 possible_moves(Row2, Col2, Row3, Col3, T) :- 
