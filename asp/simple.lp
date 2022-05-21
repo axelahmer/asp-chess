@@ -49,13 +49,13 @@ color_to_move(T, black) :- color_to_move(T-1, white), time(T).
 
     % KRow, KCol, A1Row, A1Col, A2Row, A2Col.
 
-% possible_moves(Row', Col', Row, Col, T) :-
+% possible_move(Row', Col', Row, Col, T) :-
 %     color_to_move(T, Color),
 %     chessman(Piece, Color, Row, Col, T), 
 %     guarded(Row', Col', Row, Col, Color, T).
 
 % the king moves to a safe spot and not on a friendly piece
-possible_moves(Row', Col', Row, Col, T) :- 
+possible_move(Row', Col', Row, Col, T) :- 
     chessman(king, Color, Row, Col, T), 
     guarded(Row', Col', Row, Col, Color, T),
     enemy(Color,EnemyColor),
@@ -65,10 +65,10 @@ possible_moves(Row', Col', Row, Col, T) :-
     not chessman(_,Color,Row',Col',T).
 
 % the king cannot step on it's own pieces
-% :- chessman(_,Color,R',C',T), possible_moves(R',C',R,C,T), chessman(king, Color, R, C, T).
+% :- chessman(_,Color,R',C',T), possible_move(R',C',R,C,T), chessman(king, Color, R, C, T).
 
 % a friendly piece can take out the sole attacking piece
-possible_moves(Row2, Col2, Row3, Col3, T) :- 
+possible_move(Row2, Col2, Row3, Col3, T) :- 
     chessman(king, Color, Row, Col, T), 
     % the king is under atk
     guarded(Row, Col, Row2, Col2, EnemyColor, T),
@@ -78,7 +78,7 @@ possible_moves(Row2, Col2, Row3, Col3, T) :-
 
 % TODO
 % a friendly piece can block the attacking piece
-% possible_moves(Row2, Col2, Row3, Col3, T) :- 
+% possible_move(Row2, Col2, Row3, Col3, T) :- 
     % chessman(king, Color, Row, Col, T), 
     % % the king is under atk
     % guarded(Row, Col, Row2, Col2, Color2, T),
@@ -91,7 +91,7 @@ possible_moves(Row2, Col2, Row3, Col3, T) :-
 checkmate(T) :-
     color_to_move(T,C),
     time(T),
-    {possible_moves(_,_,_,_,T)}=0,
+    {possible_move(_,_,_,_,T)}=0,
     check(C,T).
 
 check(C,T) :-
@@ -131,7 +131,7 @@ chessman(Piece, Color, Row, Col, T+1) :-
 {chessman(king, white, Row, Col, 1) : row(Row), col(Col)} = 1.
 
 % other pieces:
-{chessman(knight, white, Row, Col, 1) : row(Row), col(Col)} = knight_count.
+{chessman(Piece, white, Row, Col, 1) : row(Row), col(Col)} = knight_count :- Piece = (knight; rook).
 {chessman(knight, black, Row, Col, 1) : row(Row), col(Col)} = 3.
 
 % it cannot be the case that there is more than 1 chessman on a square
@@ -162,7 +162,7 @@ chessman(Piece, Color, Row, Col, T+1) :-
 
 % #show king/2.
 #show chessman/5.
-% #show possible_moves/5.
+% #show possible_move/5.
 % #show move/5.
 % #show checkmate/1.
 % #show check/2.

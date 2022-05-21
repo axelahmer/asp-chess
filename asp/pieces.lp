@@ -34,6 +34,25 @@ guarded(
 % BISHOPS
 
 % ROOKS
+% rooks guarding positions - horizontal
+being_guarded(Row, Low..Col-1, T; Row, Col+1..High, T)
+ :- High = #min{Col2 : 
+    chessman(_,_, Row, Col2, T), Col2 > Col;
+    n: #true},
+    Low = #max{Col2 : 
+    chessman(_,_, Row, Col2, T), Col > Col2; 
+    1: #true},
+    chessman(rook, _, Row, Col, T).
+
+% rooks guarding positions - vertical
+being_guarded(Low..Row-1, Col; Row+1..High, Col)
+ :- High = #min{Row2 : 
+    chessman(_,_, Row2, Col, T), Row2 > Row;
+    n: #true},
+    Low = #max{Row2 : 
+    chessman(_,_, Row2, Col, T), Row > Row2; 
+    1: #true},
+    chessman(rook, _, Row, Col, T).
 
 % QUEENS
 
