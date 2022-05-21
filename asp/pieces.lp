@@ -38,25 +38,29 @@ guarded(
 % ROOKS
 % rooks guarding positions - horizontal
 guarded(Row, Low..Col-1, Row, Col, Color, T; Row, Col+1..High, Row, Col, Color, T)
- :- High = #min{Col2 : 
-    chessman(_,_, Row, Col2, T), Col2 > Col;
+ :- High = #min{
+    Col2 : chessman(_,_, Row, Col2, T), Col2 > Col;
+    Col2+1: chessman(king, Color2, Row, Col2, T); % xray attack
     n: #true},
-    Low = #max{Col2 : 
-    chessman(_,_, Row, Col2, T), Col > Col2; 
+    Low = #max{
+    Col2 : chessman(_,_, Row, Col2, T), Col > Col2; 
+    Col2-1: chessman(king, Color2, Row, Col2, T); % xray attack
     1: #true},
     chessman(rook, _, Row, Col, T),
-    color(Color).
+    enemy(Color, Color2).
 
 % rooks guarding positions - vertical
 guarded(Low..Row-1, Col, Row, Col, Color, T; Row+1..High, Col, Row, Col, Color, T)
- :- High = #min{Row2 : 
-    chessman(_,_, Row2, Col, T), Row2 > Row;
+ :- High = #min{
+    Row2 : chessman(_,_, Row2, Col, T), Row2 > Row;
+    Row2 + 1: chessman(king, Color2, Row2, Col, T), Row2 > Row; % xray attack
     n: #true},
-    Low = #max{Row2 : 
-    chessman(_,_, Row2, Col, T), Row > Row2; 
+    Low = #max{
+    Row2 : chessman(_,_, Row2, Col, T), Row > Row2; 
+    Row2 - 1: chessman(king, Color2, Row2, Col, T), Row2 > Row; % xray attack
     1: #true},
     chessman(rook, _, Row, Col, T),
-    color(Color).
+    enemy(Color, Color2).
 
 % not working just yet
 pin(Row, Col, T):-
