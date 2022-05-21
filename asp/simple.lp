@@ -22,7 +22,7 @@ color_to_move(T, black) :- color_to_move(T-1, white), time(T).
 
 % it cannot be the case that after a move that color is in check
 % color_to_move(Color, T), it cannot be the case that enemy(Color, EnemyColor) check(EnemyColor, T)
-:- time(T), color_to_move(T,C), enemy(C,EC), check(EC).
+:- time(T), color_to_move(T,C), enemy(C,EC), check(EC,T).
 
 
 
@@ -69,9 +69,10 @@ possible_moves(Row2, Col2, Row3, Col3, T) :-
 
 % new definition of checkmate:
 checkmate(T) :-
+    color_to_move(T,C),
     time(T),
     {move(_,_,_,_,T)}=0,
-    check(T).
+    check(C,T).
 
 % NewRow, NewCol = King's movement
 % checkmate(T) :- 
@@ -92,15 +93,15 @@ checkmate(T) :-
 %     Color != Color2, 
 %     color_to_move(T, Color).
 
-check(T) :-
-    guarded(Row, Col, Row', Col', Color', T),
-    Color != Color',
-    chessman(king, Color, Row, Col, T), 
-    color_to_move(T, Color).
+check(C,T) :-
+    enemy(C,EC),
+    guarded(Row, Col, _, _, EC, T),
+    chessman(king, C, Row, Col, T).
+    % color_to_move(T, Color).
 
-check(1) :- 
-    guarded(Row, Col, _, _, white, 1),
-    chessman(king, black, Row, Col, 1).
+% check(Color,1) :- 
+%     guarded(Row, Col, _, _, white, 1),
+%     chessman(king, black, Row, Col, 1).
 
 % the pieces cant be on the same position TODO: Refactor this
 :- chessman(X, _, Row, Col, T), chessman(Y, _, Row, Col, T), X!=Y.
@@ -146,10 +147,10 @@ chessman(Piece, Color, Row, Col, T+1) :-
 % :- check(T) : time(T), T<N, checkmate(N).
 
 % there must be no check at time 1
-:- check(1).
+:- check(black,1).
 
 % minimize the number of moves until checkmate
-#minimize{N@1:checkmate(N)}.
+#minimize{N:checkmate(N)}.
 
 % there must be a checkmate
 :- not {checkmate(N) : time(N)}=1.
@@ -160,10 +161,12 @@ chessman(Piece, Color, Row, Col, T+1) :-
 % :- chessman(king,_, Row, Col, 1), Col=(1;n), Row=(1;n).
 
 
+% :- checkmate(1..4).
+
 % #show king/2.
-% #show chessman/5.
+#show chessman/5.
 % #show possible_moves/5.
 % #show move/5.
-#show checkmate/1.
-#show check/1.
+% #show checkmate/1.
+% #show check/2.
 % #show color_to_move/2.
