@@ -71,6 +71,16 @@ possible_moves(Row2, Col2, Row3, Col3, T) :-
     Color != Color2,
     chessman(_, white, Row3, Col3, T).
 
+% TODO
+% a friendly piece can block the attacking piece
+possible_moves(Row2, Col2, Row3, Col3, T) :- 
+    % chessman(king, Color, Row, Col, T), 
+    % % the king is under atk
+    % guarded(Row, Col, Row2, Col2, Color2, T),
+    % % but a friendly piece can take it out
+    % guarded(Row2, Col2, Row3, Col3, Color, T),
+    % Color != Color2,
+
 
 % new definition of checkmate:
 checkmate(T) :-
