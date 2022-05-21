@@ -71,7 +71,7 @@ possible_moves(Row2, Col2, Row3, Col3, T) :-
 checkmate(T) :-
     color_to_move(T,C),
     time(T),
-    {move(_,_,_,_,T)}=0,
+    {possible_moves(_,_,_,_,T)}=0,
     check(C,T).
 
 % NewRow, NewCol = King's movement
@@ -122,8 +122,9 @@ chessman(Piece, Color, Row, Col, T+1) :-
     chessman(Piece, Color, Row, Col, T),
     color(Color).
 
-% it does not matter whos move it is - any color can move.
+
 { move(Row, Col, NewRow, NewCol, T) :
+    color_to_move(T,Color),
     guarded(NewRow, NewCol, Row, Col, Color, T),
     % cannot take friendly piece down
     not chessman(_, Color, NewRow, NewCol, T),
