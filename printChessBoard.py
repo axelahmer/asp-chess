@@ -56,8 +56,8 @@ def print_board(board, dimension):
     print(linebreak)
 
 
-def run_clingo(n, k, knight_count=None):
-    os.system(f"clingo asp/simple.lp asp/pieces.lp -c n={n} -c k={k} -c knight_count={knight_count} --opt-mode optN -n 10 > output.txt")
+def run_clingo(n, k, knight_count, l):
+    os.system(f"clingo asp/simple.lp asp/pieces.lp -c n={n} -c k={k} -c knight_count={knight_count} --opt-mode optN -n {l} > output.txt")
 
 
 def read_output_and_print(n, k):
@@ -87,5 +87,6 @@ if __name__ == "__main__":
     n = int(input("Enter board dimension \n"))
     chess_count = int(input("Enter chess piece count \n"))
     k = int(input("Enter steps count \n"))
-    run_clingo(n, k, chess_count)
+    l = int(input("Enter number of answers \n"))
+    run_clingo(n, k, chess_count, l)
     read_output_and_print(n, k)

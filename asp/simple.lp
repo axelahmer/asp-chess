@@ -61,6 +61,7 @@ possible_move(Row', Col', Row, Col, T) :-
     enemy(Color,EnemyColor),
     row(Row'),
     col(Col'),
+    color_to_move(T, Color),
     (Row', Col') != (Row2, Col2) : guarded(Row2, Col2, _, _, EnemyColor, T),
     not chessman(_,Color,Row',Col',T).
 
@@ -74,7 +75,8 @@ possible_move(Row2, Col2, Row3, Col3, T) :-
     guarded(Row, Col, Row2, Col2, EnemyColor, T),
     % but a friendly piece can take it out
     guarded(Row2, Col2, Row3, Col3, Color, T),
-    enemy(Color, EnemyColor).
+    enemy(Color, EnemyColor),
+    color_to_move(T, Color).
 
 % TODO
 % a friendly piece can block the attacking piece
@@ -131,8 +133,8 @@ chessman(Piece, Color, Row, Col, T+1) :-
 {chessman(king, white, Row, Col, 1) : row(Row), col(Col)} = 1.
 
 % other pieces:
-{chessman(Piece, white, Row, Col, 1) : row(Row), col(Col)} = knight_count :- Piece = (knight; rook).
-{chessman(knight, black, Row, Col, 1) : row(Row), col(Col)} = 3.
+{chessman(rook, white, Row, Col, 1) : row(Row), col(Col)} = knight_count.
+% {chessman(knight, black, Row, Col, 1) : row(Row), col(Col)} = 3.
 
 % it cannot be the case that there is more than 1 chessman on a square
 :- chessman(P,Color,R,C,T), chessman(P',Color',R',C',T), (P,Color)!=(P',Color'), (R,C)==(R',C').
@@ -162,8 +164,10 @@ chessman(Piece, Color, Row, Col, T+1) :-
 
 % #show king/2.
 #show chessman/5.
+#show pin/3.
 % #show possible_move/5.
-% #show move/5.
+#show guarded/5.
+#show move/5.
 % #show checkmate/1.
 % #show check/2.
 % #show color_to_move/2.

@@ -1,3 +1,5 @@
+piece(knight; rook).
+
 % guarded/5 defines how a piece type attacks
 
 % Guarded: What squares a piece is protecting/attacking.
@@ -35,25 +37,35 @@ guarded(
 
 % ROOKS
 % rooks guarding positions - horizontal
-being_guarded(Row, Low..Col-1, T; Row, Col+1..High, T)
+guarded(Row, Low..Col-1, Row, Col, Color, T; Row, Col+1..High, Row, Col, Color, T)
  :- High = #min{Col2 : 
     chessman(_,_, Row, Col2, T), Col2 > Col;
     n: #true},
     Low = #max{Col2 : 
     chessman(_,_, Row, Col2, T), Col > Col2; 
     1: #true},
-    chessman(rook, _, Row, Col, T).
+    chessman(rook, _, Row, Col, T),
+    color(Color).
 
 % rooks guarding positions - vertical
-being_guarded(Low..Row-1, Col; Row+1..High, Col)
+guarded(Low..Row-1, Col, Row, Col, Color, T; Row+1..High, Col, Row, Col, Color, T)
  :- High = #min{Row2 : 
     chessman(_,_, Row2, Col, T), Row2 > Row;
     n: #true},
     Low = #max{Row2 : 
     chessman(_,_, Row2, Col, T), Row > Row2; 
     1: #true},
-    chessman(rook, _, Row, Col, T).
+    chessman(rook, _, Row, Col, T),
+    color(Color).
 
+% not working just yet
+pin(Row, Col, T):-
+    chessman(king, Color, Row, KingCol, T),
+    chessman(rook, Color2, Row, RookCol, T),
+    chessman(_, Color, Row, Col, T),
+    Col < KingCol, Col > RookCol, 
+    #count { chessman(Piece, Color, Row, Col', T): piece(Piece), time(T), col(Col'), Col' < KingCol, Col' > RookCol } =1.
+    
 % QUEENS
 
 % pawns cannot exist on row=1,n
