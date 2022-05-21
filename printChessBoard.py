@@ -14,18 +14,30 @@ def read_prolog(arr, dimension, k):
         max_time = max(time, max_time)
         row, col = row-1, col-1
         if chesspiece== "queen" :
-            board[time][row][col] = '\u2655'
+            if color == "white":
+                board[time][row][col] = '\u2655'
+            elif  color == "black":
+                board[time][row][col] = '\u265B'
         elif chesspiece== "rook" :
-            board[time][row][col] = '\u2656'
+            if color == "white":
+                board[time][row][col] = '\u2656'
+            elif  color == "black":
+                board[time][row][col] = '\u265C'
         elif chesspiece== "bishop" :
-            board[time][row][col] = '\u2657'
+            if color == "white":
+                board[time][row][col] = '\u2657'
+            elif  color == "black":
+                board[time][row][col] = '\u265D'
         elif chesspiece== "knight" :
             if color == "white":
                 board[time][row][col] = '\u2658'
             elif  color == "black":
                 board[time][row][col] = '\u265E'
         elif chesspiece== "pawn" :
-            board[time][row][col] = '\u2659'
+            if color == "white":
+                board[time][row][col] = '\u2659'
+            elif  color == "black":
+                board[time][row][col] = '\u265F'
         elif chesspiece== "king" :
             if color == "white":
                 board[time][row][col] = '\u2654'
