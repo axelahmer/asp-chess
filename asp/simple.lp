@@ -58,22 +58,26 @@ color_to_move(T, black) :- color_to_move(T-1, white), time(T).
 possible_moves(Row', Col', Row, Col, T) :- 
     chessman(king, Color, Row, Col, T), 
     guarded(Row', Col', Row, Col, Color, T),
-    Color != Color2, color(Color2), row(Row'), col(Col'),
-    (Row', Col') != (Row2, Col2): guarded(Row2, Col2, Row3, Col3, Color2, T).
-    
-% % a friendly piece can take out the sole attacking piece
+    enemy(Color,EnemyColor),
+    row(Row'),
+    col(Col'),
+    (Row', Col') != (Row2, Col2) : guarded(Row2, Col2, Row3, Col3, EnemyColor, T).
+
+% the king cannot step on it's own pieces
+:- chessman(_,Color,R',C',T), possible_moves(R',C',R,C,T), chessman(king, Color, R, C, T).
+
+% a friendly piece can take out the sole attacking piece
 possible_moves(Row2, Col2, Row3, Col3, T) :- 
     chessman(king, Color, Row, Col, T), 
     % the king is under atk
-    guarded(Row, Col, Row2, Col2, Color2, T),
+    guarded(Row, Col, Row2, Col2, EnemyColor, T),
     % but a friendly piece can take it out
     guarded(Row2, Col2, Row3, Col3, Color, T),
-    Color != Color2,
-    chessman(_, white, Row3, Col3, T).
+    enemy(Color, EnemyColor).
 
 % TODO
 % a friendly piece can block the attacking piece
-possible_moves(Row2, Col2, Row3, Col3, T) :- 
+% possible_moves(Row2, Col2, Row3, Col3, T) :- 
     % chessman(king, Color, Row, Col, T), 
     % % the king is under atk
     % guarded(Row, Col, Row2, Col2, Color2, T),
@@ -89,37 +93,10 @@ checkmate(T) :-
     {possible_moves(_,_,_,_,T)}=0,
     check(C,T).
 
-% NewRow, NewCol = King's movement
-% checkmate(T) :- 
-%     % set of King's valid move (not being guard by pawns)
-%     #count 
-%     {(NewRow, NewCol): 
-%     (NewRow, NewCol) != (Row, Col), 
-%     NewRow=Row-1..Row+1, 
-%     NewCol=Col-1..Col+1, 
-%     col(NewCol), row(NewRow),
-%     not guarded(NewRow, NewCol,_,_, Color2, T)
-%     } = N, 
-%     % the king cannot move to a safe spot
-%     N=0,
-%     % the king is currently under attack
-%     chessman(king,Color,Row,Col,T), 
-%     guarded(Row,Col,_,_, Color2, T),
-%     Color != Color2, 
-%     color_to_move(T, Color).
-
 check(C,T) :-
     enemy(C,EC),
     guarded(Row, Col, _, _, EC, T),
     chessman(king, C, Row, Col, T).
-    % color_to_move(T, Color).
-
-% check(Color,1) :- 
-%     guarded(Row, Col, _, _, white, 1),
-%     chessman(king, black, Row, Col, 1).
-
-% the pieces cant be on the same position TODO: Refactor this
-:- chessman(X, _, Row, Col, T), chessman(Y, _, Row, Col, T), X!=Y.
 
 % create a chessman at t+1 that moved!
 chessman(Piece, Color, NewRow, NewCol, T+1) :-
@@ -137,7 +114,6 @@ chessman(Piece, Color, Row, Col, T+1) :-
     chessman(Piece, Color, Row, Col, T),
     color(Color).
 
-
 { move(Row, Col, NewRow, NewCol, T) :
     color_to_move(T,Color),
     guarded(NewRow, NewCol, Row, Col, Color, T),
@@ -147,22 +123,25 @@ chessman(Piece, Color, Row, Col, T+1) :-
     col(NewCol),
     chessman(_, _, Row, Col, T)}=1 :- time(T), T<N : checkmate(N).
 
-% it cannot be the case that a king moves into an attack from the enemy.
-% :- enemy(Color,Enemy), chessman(king,Color,Row,Col,T), move(Row,Col,Row',Col',T), guarded(Row',Col',_,_,Enemy,T).
-
 % set initial board state
+
+% 2 kings: 1 white, 1 black
 {chessman(king, black, Row, Col, 1) : row(Row), col(Col)} = 1.
 {chessman(king, white, Row, Col, 1) : row(Row), col(Col)} = 1.
+
+% other pieces:
 {chessman(knight, white, Row, Col, 1) : row(Row), col(Col)} = knight_count.
-{chessman(knight, black, Row, Col, 1) : row(Row), col(Col)} = 1.
+{chessman(knight, black, Row, Col, 1) : row(Row), col(Col)} = 3.
 
 % it cannot be the case that there is more than 1 chessman on a square
 :- chessman(P,Color,R,C,T), chessman(P',Color',R',C',T), (P,Color)!=(P',Color'), (R,C)==(R',C').
+% old version
+% :- chessman(X, _, Row, Col, T), chessman(Y, _, Row, Col, T), X!=Y.
 
 % it is not check at t<N:
 % :- check(T) : time(T), T<N, checkmate(N).
 
-% there must be no check at time 1
+% there must be no check at time 1 for black
 :- check(black,1).
 
 % minimize the number of moves until checkmate
@@ -171,13 +150,14 @@ chessman(Piece, Color, Row, Col, T+1) :-
 % there must be a checkmate
 :- not {checkmate(N) : time(N)}=1.
 
+% the checkmate must not be on white
 :- checkmate(N), color_to_move(N,white).
 
 % king cannot be in corner
 % :- chessman(king,_, Row, Col, 1), Col=(1;n), Row=(1;n).
 
 
-:- checkmate(1..2).
+% :- checkmate(1..2).
 
 % #show king/2.
 #show chessman/5.
