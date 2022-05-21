@@ -49,6 +49,11 @@ color_to_move(T, black) :- color_to_move(T-1, white), time(T).
 
     % KRow, KCol, A1Row, A1Col, A2Row, A2Col.
 
+% possible_moves(Row', Col', Row, Col, T) :-
+%     color_to_move(T, Color),
+%     chessman(Piece, Color, Row, Col, T), 
+%     guarded(Row', Col', Row, Col, Color, T).
+
 % the king moves to a safe spot
 possible_moves(Row', Col', Row, Col, T) :- 
     chessman(king, Color, Row, Col, T), 
@@ -56,7 +61,7 @@ possible_moves(Row', Col', Row, Col, T) :-
     Color != Color2, color(Color2), row(Row'), col(Col'),
     (Row', Col') != (Row2, Col2): guarded(Row2, Col2, Row3, Col3, Color2, T).
     
-% a friendly piece can take out the sole attacking piece
+% % a friendly piece can take out the sole attacking piece
 possible_moves(Row2, Col2, Row3, Col3, T) :- 
     chessman(king, Color, Row, Col, T), 
     % the king is under atk
@@ -162,7 +167,7 @@ chessman(Piece, Color, Row, Col, T+1) :-
 % :- chessman(king,_, Row, Col, 1), Col=(1;n), Row=(1;n).
 
 
-% :- checkmate(1..4).
+:- checkmate(1..2).
 
 % #show king/2.
 #show chessman/5.
