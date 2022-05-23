@@ -22,9 +22,8 @@ color_to_move(T, black) :- color_to_move(T-1, white), time(T).
 
 % it cannot be the case that after a move that color is in check
 % color_to_move(Color, T), it cannot be the case that enemy(Color, EnemyColor) check(EnemyColor, T)
-:- time(T), color_to_move(T,C), enemy(C,EC), check(EC,T).
-
-
+:- time(T), color_to_move(T,Color), check(Color, T+1).
+% :- time(T), color_to_move(T,C), enemy(C,EC), check(EC,T).
 
 
 % definition of move:
@@ -93,7 +92,7 @@ possible_move(Row2, Col2, Row3, Col3, T) :-
 checkmate(T) :-
     color_to_move(T,C),
     time(T),
-    {move(_,_,_,_,T)}=0,
+    {possible_move(_,_,_,_,T)}=0,
     check(C,T).
 
 check(C,T) :-
@@ -125,7 +124,7 @@ chessman(Piece, Color, Row, Col, T+1) :-
     not chessman(_, Color, NewRow, NewCol, T),
     row(NewRow),
     col(NewCol),
-    chessman(_, _, Row, Col, T)}1 :- time(T). %T<N : checkmate(N).
+    chessman(_, _, Row, Col, T)}=1 :- time(T), T<N : checkmate(N).
 
 % set initial board state
 
