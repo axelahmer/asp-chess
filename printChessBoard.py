@@ -1,53 +1,64 @@
 import os
 
 def read_prolog(arr, dimension, k):
-    board = [[[" "] * dimension for _ in range(dimension)] for _ in range(k + 2)]
+    board = [[["   "] * dimension for _ in range(dimension)] for _ in range(k + 2)]
     max_time = 0
     for chess in arr:
-        if chess.startswith('move'):
-            continue
-        index = chess.find('(')
-        index_end = chess.find(')')
-        chesspiece, color, row, col, time = chess[index+1:index_end].split(',')
+        if chess.startswith('chessman'):
+            
+        
+            index = chess.find('(')
+            index_end = chess.find(')')
+            chesspiece, color, row, col, time = chess[index+1:index_end].split(',')
 
-        row, col, time = int(row), int(col), int(time) -1
-        max_time = max(time, max_time)
-        row, col = row-1, col-1
-        if chesspiece== "queen" :
-            if color == "white":
-                board[time][row][col] = '\u2655'
-            elif  color == "black":
-                board[time][row][col] = '\u265B'
-        elif chesspiece== "rook" :
-            if color == "white":
-                board[time][row][col] = '\u2656'
-            elif  color == "black":
-                board[time][row][col] = '\u265C'
-        elif chesspiece== "bishop" :
-            if color == "white":
-                board[time][row][col] = '\u2657'
-            elif  color == "black":
-                board[time][row][col] = '\u265D'
-        elif chesspiece== "knight" :
-            if color == "white":
-                board[time][row][col] = '\u2658'
-            elif  color == "black":
-                board[time][row][col] = '\u265E'
-        elif chesspiece== "pawn" :
-            if color == "white":
-                board[time][row][col] = '\u2659'
-            elif  color == "black":
-                board[time][row][col] = '\u265F'
-        elif chesspiece== "king" :
-            if color == "white":
-                board[time][row][col] = '\u2654'
-            elif  color == "black":
-                board[time][row][col] = '\u265A'
+            row, col, time = int(row), int(col), int(time) -1
+            max_time = max(time, max_time)
+            row, col = row-1, col-1
+            if chesspiece== "queen" :
+                if color == "white":
+                    board[time][row][col] = ' \u2655 '
+                elif  color == "black":
+                    board[time][row][col] = ' \u265B '
+            elif chesspiece== "rook" :
+                if color == "white":
+                    board[time][row][col] = ' \u2656 '
+                elif  color == "black":
+                    board[time][row][col] = ' \u265C '
+            elif chesspiece== "bishop" :
+                if color == "white":
+                    board[time][row][col] = ' \u2657 '
+                elif  color == "black":
+                    board[time][row][col] = ' \u265D '
+            elif chesspiece== "knight" :
+                if color == "white":
+                    board[time][row][col] = ' \u2658 '
+                elif  color == "black":
+                    board[time][row][col] = ' \u265E '
+            elif chesspiece== "pawn" :
+                if color == "white":
+                    board[time][row][col] = ' \u2659 '
+                elif  color == "black":
+                    board[time][row][col] = ' \u265F '
+            elif chesspiece== "king" :
+                if color == "white":
+                    board[time][row][col] = ' \u2654 '
+                elif  color == "black":
+                    board[time][row][col] = ' \u265A '
+        elif chess.startswith("guarded"):
+            index = chess.find('(')
+            index_end = chess.find(')')
+            row, col, _, _, color, time = chess[index+1:index_end].split(',')
+            row, col, time = int(row), int(col), int(time) -1
+            if row > dimension or col > dimension or row < 1 or col < 1:
+                continue
+            
+            row, col = row-1, col-1
+            board[time][row][col] = board[time][row][col][:-1] + 'X' if color == 'black' else 'O' + board[time][row][col][1:] 
     return board, max_time+1
 
 
 def print_board(board, dimension):
-    linebreak = "\n" + "---" * dimension + '-'
+    linebreak = "\n" + "-----" * dimension + '-'
     for i in range(dimension):
         print(linebreak)
         print('|', end='')
@@ -57,7 +68,7 @@ def print_board(board, dimension):
 
 
 def run_clingo(n, k, knight_count, l):
-    os.system(f"clingo asp/simple.lp asp/pieces.lp -c n={n} -c k={k} -c knight_count={knight_count} --opt-mode optN -n {l} > output.txt")
+    os.system(f"clingo asp/simple.lp asp/pieces.lp asp/test/pin_condition.lp -c n={n} -c k={k} -c knight_count={knight_count} --opt-mode optN -n {l} > output.txt")
 
 
 def read_output_and_print(n, k):

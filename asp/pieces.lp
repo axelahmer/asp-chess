@@ -46,7 +46,7 @@ guarded(Row, Low..Col-1, Row, Col, Color, T; Row, Col+1..High, Row, Col, Color, 
     Col2 : chessman(_,_, Row, Col2, T), Col > Col2; 
     Col2-1: chessman(king, Color2, Row, Col2, T); % xray attack
     1: #true},
-    chessman(rook, _, Row, Col, T),
+    chessman(rook, Color, Row, Col, T),
     enemy(Color, Color2).
 
 % rooks guarding positions - vertical
@@ -59,16 +59,19 @@ guarded(Low..Row-1, Col, Row, Col, Color, T; Row+1..High, Col, Row, Col, Color, 
     Row2 : chessman(_,_, Row2, Col, T), Row > Row2; 
     Row2 - 1: chessman(king, Color2, Row2, Col, T), Row2 > Row; % xray attack
     1: #true},
-    chessman(rook, _, Row, Col, T),
+    chessman(rook, Color, Row, Col, T),
     enemy(Color, Color2).
 
-% not working just yet
+% a pin happens when a chessman cannot move such that the king would be exposed to attack
 pin(Row, Col, T):-
     chessman(king, Color, Row, KingCol, T),
     chessman(rook, Color2, Row, RookCol, T),
-    chessman(_, Color, Row, Col, T),
-    Col < KingCol, Col > RookCol, 
-    #count { chessman(Piece, Color, Row, Col', T): piece(Piece), time(T), col(Col'), Col' < KingCol, Col' > RookCol } =1.
+    chessman(P, Color, Row, Col, T), P != king,
+    % Col < KingCol, Col > RookCol, 
+    #count { 
+        chessman(Piece, Color, Row, Col', T): chessman(Piece, Color, Row, Col', T), piece(Piece), time(T), col(Col'), Col' < KingCol, Col' > RookCol;
+        chessman(Piece, Color, Row, Col', T): chessman(Piece, Color, Row, Col', T), piece(Piece), time(T), col(Col'), Col' > KingCol, Col' < RookCol 
+    } =1.
     
 % QUEENS
 

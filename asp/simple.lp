@@ -93,7 +93,7 @@ possible_move(Row2, Col2, Row3, Col3, T) :-
 checkmate(T) :-
     color_to_move(T,C),
     time(T),
-    {possible_move(_,_,_,_,T)}=0,
+    {move(_,_,_,_,T)}=0,
     check(C,T).
 
 check(C,T) :-
@@ -111,7 +111,8 @@ chessman(Piece, Color, NewRow, NewCol, T+1) :-
 % add to the set of chessmen at t+1 all the men who have not moved.
 chessman(Piece, Color, Row, Col, T+1) :-
     move(Row', Col', NewRow, NewCol, T),
-    (Row, Col) != (Row', Col'), 
+    (Row, Col) != (Row', Col'), % the chessman cannot be the one who moved
+    (Row, Col) != (NewRow, NewCol), % the chessman cannot be the one being taken
     row(NewRow), col(NewCol), row(Row'), col(Col'),
     time(T), % TODO gotcha: a piece may have been taken.
     chessman(Piece, Color, Row, Col, T),
@@ -124,7 +125,7 @@ chessman(Piece, Color, Row, Col, T+1) :-
     not chessman(_, Color, NewRow, NewCol, T),
     row(NewRow),
     col(NewCol),
-    chessman(_, _, Row, Col, T)}=1 :- time(T), T<N : checkmate(N).
+    chessman(_, _, Row, Col, T)}1 :- time(T). %T<N : checkmate(N).
 
 % set initial board state
 
@@ -166,7 +167,7 @@ chessman(Piece, Color, Row, Col, T+1) :-
 #show chessman/5.
 #show pin/3.
 % #show possible_move/5.
-#show guarded/5.
+#show guarded/6.
 #show move/5.
 % #show checkmate/1.
 % #show check/2.
