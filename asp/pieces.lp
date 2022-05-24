@@ -33,49 +33,7 @@ guarded(
     Row+1,  Col-1,  Row, Col, Color, T) :-
     chessman(king, Color, Row, Col, T).
 
-% BISHOPS
+% % pawns cannot exist on row=1,n
 
-% ROOKS
-% rooks guarding positions - horizontal
-guarded(Row, Low..Col-1, Row, Col, Color, T; Row, Col+1..High, Row, Col, Color, T)
- :- High = #min{
-    Col2 : chessman(_,_, Row, Col2, T), Col2 > Col;
-    Col2+1: chessman(king, Color2, Row, Col2, T); % xray attack
-    n: #true},
-    Low = #max{
-    Col2 : chessman(_,_, Row, Col2, T), Col > Col2; 
-    Col2-1: chessman(king, Color2, Row, Col2, T); % xray attack
-    1: #true},
-    chessman(rook, Color, Row, Col, T),
-    enemy(Color, Color2).
-
-% rooks guarding positions - vertical
-guarded(Low..Row-1, Col, Row, Col, Color, T; Row+1..High, Col, Row, Col, Color, T)
- :- High = #min{
-    Row2 : chessman(_,_, Row2, Col, T), Row2 > Row;
-    Row2 + 1: chessman(king, Color2, Row2, Col, T), Row2 > Row; % xray attack
-    n: #true},
-    Low = #max{
-    Row2 : chessman(_,_, Row2, Col, T), Row > Row2; 
-    Row2 - 1: chessman(king, Color2, Row2, Col, T), Row2 > Row; % xray attack
-    1: #true},
-    chessman(rook, Color, Row, Col, T),
-    enemy(Color, Color2).
-
-% a pin happens when a chessman cannot move such that the king would be exposed to attack
-pin(Row, Col, T):-
-    chessman(king, Color, Row, KingCol, T),
-    chessman(rook, Color2, Row, RookCol, T),
-    chessman(P, Color, Row, Col, T), P != king,
-    % Col < KingCol, Col > RookCol, 
-    #count { 
-        chessman(Piece, Color, Row, Col', T): chessman(Piece, Color, Row, Col', T), piece(Piece), time(T), col(Col'), Col' < KingCol, Col' > RookCol;
-        chessman(Piece, Color, Row, Col', T): chessman(Piece, Color, Row, Col', T), piece(Piece), time(T), col(Col'), Col' > KingCol, Col' < RookCol 
-    } =1.
-    
-% QUEENS
-
-% pawns cannot exist on row=1,n
-
-% pawns promote to a bishop, knight, rook, or queen if there is a move that puts them to the end of the board,
+% % pawns promote to a bishop, knight, rook, or queen if there is a move that puts them to the end of the board,
 

@@ -53,7 +53,9 @@ def read_prolog(arr, dimension, k):
                 continue
             
             row, col = row-1, col-1
-            board[time][row][col] = board[time][row][col][:-1] + 'X' if color == 'black' else 'O' + board[time][row][col][1:] 
+            board[time][row][col] = board[time][row][col][:-1] + 'X' if color == 'black' else 'O' + board[time][row][col][1:]
+        else: 
+            print(chess) 
     return board, max_time+1
 
 
@@ -67,8 +69,8 @@ def print_board(board, dimension):
     print(linebreak)
 
 
-def run_clingo(n, k, knight_count, l):
-    os.system(f"clingo asp/simple.lp asp/pieces.lp asp/test/pin_condition.lp -c n={n} -c k={k} -c knight_count={knight_count} --opt-mode optN -n {l} > output.txt")
+def run_clingo(n, k, white_count, black_count, l):
+    os.system(f"clingo asp/init.lp asp/pieces.lp asp/linear.lp asp/planner.lp -c n={n} -c k={k} -c white_count={white_count} -c black_count={black_count} --opt-mode optN -n {l} > output.txt")
 
 
 def read_output_and_print(n, k):
@@ -96,8 +98,10 @@ if __name__ == "__main__":
     #     print_board(board, dimension)
 
     n = int(input("Enter board dimension \n"))
-    chess_count = int(input("Enter chess piece count \n"))
+    white_count = int(input("Enter white piece count \n"))
+    black_count = int(input("Enter black piece count \n"))
+
     k = int(input("Enter steps count \n"))
     l = int(input("Enter number of answers \n"))
-    run_clingo(n, k, chess_count, l)
+    run_clingo(n, k, white_count, black_count, l)
     read_output_and_print(n, k)

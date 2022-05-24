@@ -53,30 +53,6 @@ color_to_move(T, black) :- color_to_move(T-1, white), time(T).
 %     chessman(Piece, Color, Row, Col, T), 
 %     guarded(Row', Col', Row, Col, Color, T).
 
-% the king moves to a safe spot and not on a friendly piece
-possible_move(Row', Col', Row, Col, T) :- 
-    chessman(king, Color, Row, Col, T), 
-    guarded(Row', Col', Row, Col, Color, T),
-    enemy(Color,EnemyColor),
-    row(Row'),
-    col(Col'),
-    color_to_move(T, Color),
-    (Row', Col') != (Row2, Col2) : guarded(Row2, Col2, _, _, EnemyColor, T),
-    not chessman(_,Color,Row',Col',T).
-
-% the king cannot step on it's own pieces
-% :- chessman(_,Color,R',C',T), possible_move(R',C',R,C,T), chessman(king, Color, R, C, T).
-
-% a friendly piece can take out the sole attacking piece
-possible_move(Row2, Col2, Row3, Col3, T) :- 
-    chessman(king, Color, Row, Col, T), 
-    % the king is under atk
-    guarded(Row, Col, Row2, Col2, EnemyColor, T),
-    % but a friendly piece can take it out
-    guarded(Row2, Col2, Row3, Col3, Color, T),
-    enemy(Color, EnemyColor),
-    color_to_move(T, Color).
-
 % TODO
 % a friendly piece can block the attacking piece
 % possible_move(Row2, Col2, Row3, Col3, T) :- 
@@ -86,7 +62,6 @@ possible_move(Row2, Col2, Row3, Col3, T) :-
     % % but a friendly piece can take it out
     % guarded(Row2, Col2, Row3, Col3, Color, T),
     % Color != Color2,
-
 
 % new definition of checkmate:
 checkmate(T) :-
