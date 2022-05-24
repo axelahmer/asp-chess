@@ -1,10 +1,13 @@
-row(1..1).
+row(1..6).
 col(1..6).
 color(white).
 color(black).
 enemy(white,black).
 enemy(black,white).
-time(1..5).
+time(1..2).
+color_to_move(1, black).
+color_to_move(T, white) :- color_to_move(T-1, black), time(T).
+color_to_move(T, black) :- color_to_move(T-1, white), time(T).
 
 % dir(name, delta_row, delta_col)
 dir(
@@ -65,12 +68,14 @@ xray(R',C',Col,T) :-
 %     dir(Dir, DeltaR, DeltaC),
 %     {chessman(king,Col,R',C',T) : row(R'), col(C'), R'=R+DeltaR*N , C'=C+DeltaC*N, N=1..8}=1.
 
-% a piece at R,C is pinned if it is under linearAttack from the king and the enmy piece at once
+% a piece at R,C is pinned if it is under linearAttack from the king and the enemy piece at once
 pinned(R, C, R0, C0, Dir, T) :- 
     oppDir(Dir, Dir2),
     linearAttack(R,C, ECol, Dir, R0, C0,T),
     linearAttack(R,C, Col, Dir2, RK, CK,T),
+    chessman(_, Col, R,C,T),
     chessman(king, Col, RK, CK, T),
+    (R,C) != (RK,CK),
     enemy(Col, ECol).
 
 % a square is guarded if there is a linear attack on that square - if the piece is not standing on that square already.
@@ -83,9 +88,80 @@ guarded(R,C,R0,C0,Col,T) :-
 chessman(rook,white,1,1,1).
 chessman(bishop,black,1,3,1).
 chessman(king,black,1,5,1).
+chessman(bishop,white,3,3,1).
 
 % #show linearAttack/7.
-#show guarded/6.
+% #show guarded/6.
 #show pinned/6.
+% #show blockSquare/3.
+#show pinMoves/5.
 % #show xray/4.
-% #show pin/5.
+% #show color_to_move/2.
+
+
+
+% block squares only used when in check
+blockSquare(R,C,T) :-
+    color_to_move(T,Col),
+    chessman(king,Col,RK,CK,T),
+    guarded(RK,CK,R0,C0,ECOl,T),
+    enemy(Col,ECol),
+    linearAttack(RK,CK,_,Dir,R0,C0,T),
+    linearAttack(R,C,_,Dir, R0, C0,T),
+    (R,C) != (RK,CK).
+
+
+% R, C = pinned piece pos, R', C' = valid move
+pinMoves(R,C, R', C', T) :-
+    pinned(R,C,R0,C0,DirA,T),
+    color_to_move(T, Col),
+    chessman(king,Col,RK,CK,T),
+    linearAttack(
+        R',C',_,DirK,RK,CK,T ; 
+        R',C',_,DirA,R0,C0,T ),
+    (R',C') != (RK,CK), % does not include the king's square as a pin move
+    oppDir(DirA,DirK).
+
+
+% intersection 
+% #count {blockSquare(R,C,T), pinnedSquare(R,C,T)}
+
+% blockSquare(R,C,T) :-
+%     chessman(king,Col,RK,CK,T),
+%     linearAttack(RK,CK,ECol,Dir,R0,C0),
+%     enemy(Col,ECol).
+
+% blockSquare(R,C,T) :-
+%     dir(Dir, DeltaR, DeltaC),
+%     linearAttack(R,C,Col,Dir,R0,C0,T),
+%     R' = R + DeltaR, row(R'),
+%     C' = C + DeltaC, col(C'),
+%     (R,C) == (R0,C0) : chessman(_,_,R,C,T).
+
+% which branch we care about 
+
+% possibleMove(R,C,R',C',T) :-
+%     {guarded(RK,CK,R0,C0,ECol,T) : chessman(king,Col,RK,CK,T)}=0
+
+% possibleMove(R,C,R',C',T) :-
+%     {guarded(RK,CK,R0,C0,ECol,T) : chessman(king,Col,RK,CK,T)}=1
+
+% possibleMove(R,C,R',C',T) :-
+%     {guarded(RK,CK,R0,C0,ECol,T) : chessman(king,Col,RK,CK,T)}=2
+
+% {possibleMove(R,C,R',C',T)}=1 :- color_to_move(black, T).
+
+% no check
+    % any piece can move to any square it is guarding.
+
+% check with 1 piece
+    % take, block, move
+
+    % take and block: if not pinned - you can move to the set of squares = attacker + blockSquares
+    %                  if pinned    - you can move to the set of squares = (attacker + blockSquares) /\ pinSquares.
+
+    % move:           king moves to any square which is NOT guarded and NOT an xray
+    %       
+
+% check with 2 pieces
+    % move only
