@@ -1,4 +1,4 @@
-row(1..6).
+row(1..3).
 col(1..6).
 color(white).
 color(black).
@@ -84,19 +84,34 @@ guarded(R,C,R0,C0,Col,T) :-
     (R,C) != (R0,C0),
     not chessman(king,Col,R0,C0,T).
 
+% KINGS
+guarded(
+    Row+1,  Col,    Row, Col, Color, T;
+    Row,    Col+1,  Row, Col, Color, T;
+    Row-1,  Col+1,  Row, Col, Color, T;
+    Row-1,  Col,    Row, Col, Color, T;
+    Row-1,  Col-1,  Row, Col, Color, T;
+    Row,    Col-1,  Row, Col, Color, T;
+    Row+1,  Col+1,  Row, Col, Color, T;
+    Row+1,  Col-1,  Row, Col, Color, T) :-
+    chessman(king, Color, Row, Col, T).
+
 % test case
-chessman(rook,white,1,1,1).
-chessman(bishop,black,1,3,1).
-chessman(king,black,1,5,1).
+% chessman(rook,white,1,1,1).
+chessman(rook,black,1,4,1).
 chessman(bishop,white,3,3,1).
+% chessman(rook,black,3,1,1).
+chessman(king,black,1,5,1).
+% chessman(bishop,white,3,3,1).
 
 % #show linearAttack/7.
 % #show guarded/6.
-#show pinned/6.
+% #show pinned/6.
 % #show blockSquare/3.
-#show pinMoves/5.
+% #show pinMoves/5.
 % #show xray/4.
 % #show color_to_move/2.
+#show possibleMove/5.
 
 
 
@@ -122,7 +137,6 @@ pinMoves(R,C, R', C', T) :-
     (R',C') != (RK,CK), % does not include the king's square as a pin move
     oppDir(DirA,DirK).
 
-
 % intersection 
 % #count {blockSquare(R,C,T), pinnedSquare(R,C,T)}
 
@@ -140,12 +154,39 @@ pinMoves(R,C, R', C', T) :-
 
 % which branch we care about 
 
-% possibleMove(R,C,R',C',T) :-
-%     {guarded(RK,CK,R0,C0,ECol,T) : chessman(king,Col,RK,CK,T)}=0
+possibleMove(R,C,R',C',T) :-
+    #count{(R0, C0) : guarded(RK,CK,R0,C0,ECol,T), chessman(king,Col,RK,CK,T), enemy(Col, ECol)}=0,
+    chessman(_,Col,R,C,T),
+    color_to_move(T,Col),
+    guarded(R',C',R,C,Col,T),
+    not chessman(_,Col,R',C',T),
+    pinMoves(R,C,R',C',T) : pinned(R,C,_,_,_,T).
 
-% possibleMove(R,C,R',C',T) :-
-%     {guarded(RK,CK,R0,C0,ECol,T) : chessman(king,Col,RK,CK,T)}=1
+% friendly pices taking out or block the sole attacker
+possibleMove(R,C,R',C',T) :-
+    #count{(R0, C0) : guarded(RK,CK,R0,C0,ECol,T), enemy(Col, ECol)}=1,
+    chessman(king,Col,RK,CK,T),
+    (RK, CK) != (R,C),
+    color_to_move(T,Col),
+    guarded(R',C',R,C,Col,T),
+    not chessman(_,Col,R',C',T),
+    blockSquare(R',C',T),
+    pinMoves(R,C,R',C',T) : pinned(R,C,_,_,_,T).
 
+% king moving out of check
+possibleMove(RK,CK,R',C',T) :-
+    % the king could always move to a safe spot if allowed
+    #count{(R0, C0) : guarded(RK,CK,R0,C0,ECol,T), chessman(king,Col,RK,CK,T), enemy(Col, ECol)}=N,
+    N<=2,
+    chessman(king,Col,RK,CK,T),
+    color_to_move(T,Col),
+    guarded(R',C',RK,CK,Col,T),
+    not guarded(R',C',_,_,ECol,T),
+    not xray(R',C',ECol,T),
+    row(R'), col(C'),
+    enemy(Col,ECol).
+    
+    
 % possibleMove(R,C,R',C',T) :-
 %     {guarded(RK,CK,R0,C0,ECol,T) : chessman(king,Col,RK,CK,T)}=2
 
