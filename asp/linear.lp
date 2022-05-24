@@ -18,11 +18,21 @@ dir(
     down_right,       -1,     1 ;
 ).
 
+oppDir(
+    up, down;
+    left, right;
+    up_left, down_right;
+    up_right, down_left;
+).
+
+oppDir(X,Y) :- oppDir(Y,X).
+
 % linPiece(pieceName, direction)
 linPiece(
     rook,   (up;down;left;right);
     bishop, (up_left;up_right;down_left;down_right);
-    queen,  (up;down;left;right;up_left;up_right;down_left;down_right)
+    queen,  (up;down;left;right;up_left;up_right;down_left;down_right);
+    king, (up;down;left;right;up_left;up_right;down_left;down_right) % the king radiates queen's linear attacks for pinned action
 ).
 
 % a linear piece radiates linear attacks outwards, starting from its current square in every relevant direction.
@@ -48,24 +58,34 @@ xray(R',C',Col,T) :-
     C' = C + DeltaC, col(C').
 
 % a piece at R,C is pinned by a piece at R0,C0 to the friendly king.
-pin(R,C,R0,C0,T) :-
-    enemy(Col,ECol),
-    chessman(_,Col,R,C,T),
-    linearAttack(R,C,ECol,Dir,R0,C0,T),
-    dir(Dir, DeltaR, DeltaC),
-    {chessman(king,Col,R',C',T) : row(R'), col(C'), R'=R+DeltaR*N , C'=C+DeltaC*N, N=1..8}=1.
+% pin(R,C,R0,C0,T) :-
+%     enemy(Col,ECol),
+%     chessman(_,Col,R,C,T),
+%     linearAttack(R,C,ECol,Dir,R0,C0,T),
+%     dir(Dir, DeltaR, DeltaC),
+%     {chessman(king,Col,R',C',T) : row(R'), col(C'), R'=R+DeltaR*N , C'=C+DeltaC*N, N=1..8}=1.
+
+% a piece at R,C is pinned if it is under linearAttack from the king and the enmy piece at once
+pinned(R, C, R0, C0, Dir, T) :- 
+    oppDir(Dir, Dir2),
+    linearAttack(R,C, ECol, Dir, R0, C0,T),
+    linearAttack(R,C, Col, Dir2, RK, CK,T),
+    chessman(king, Col, RK, CK, T),
+    enemy(Col, ECol).
 
 % a square is guarded if there is a linear attack on that square - if the piece is not standing on that square already.
 guarded(R,C,R0,C0,Col,T) :- 
     linearAttack(R,C,Col,_,R0,C0,T),
-    (R,C) != (R0,C0).
+    (R,C) != (R0,C0),
+    not chessman(king,Col,R0,C0,T).
 
 % test case
 chessman(rook,white,1,1,1).
 chessman(bishop,black,1,3,1).
 chessman(king,black,1,5,1).
 
-#show linearAttack/7.
+% #show linearAttack/7.
 #show guarded/6.
-#show xray/4.
-#show pin/5.
+#show pinned/6.
+% #show xray/4.
+% #show pin/5.
