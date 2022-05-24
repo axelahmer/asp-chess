@@ -45,6 +45,7 @@ xray(R',C',Col,T) :-
     enemy(Col,ECol),
     dir(Dir, DeltaR, DeltaC),
     linearAttack(R,C,Col,Dir,R0,C0,T),
+    not chessman(king,Col,R0,C0,T),
     chessman(king,ECol,R,C,T),
     R' = R + DeltaR, row(R'),
     C' = C + DeltaC, col(C').

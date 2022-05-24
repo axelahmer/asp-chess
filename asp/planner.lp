@@ -22,6 +22,12 @@ checkmate(T) :-
     {possibleMove(_,_,_,_,T)}=0,
     check(C,T).
 
+% possible_moves_at_time(T,N) :-
+%     color_to_move(T,C),
+%     time(T),
+%     {possibleMove(_,_,_,_,T)}=N.
+%     % check(C,T).
+
 check(C,T) :-
     enemy(C,EC),
     guarded(Row, Col, _, _, EC, T),
@@ -54,13 +60,14 @@ chessman(Piece, Color, Row, Col, T+1) :-
     color(Color).
 
 { move(Row, Col, NewRow, NewCol, T) :
-    color_to_move(T,Color),
-    guarded(NewRow, NewCol, Row, Col, Color, T),
-    % cannot take friendly piece down
-    not chessman(_, Color, NewRow, NewCol, T),
-    row(NewRow),
-    col(NewCol),
-    chessman(_, _, Row, Col, T)}=1 :- time(T), T<N : checkmate(N).
+    possibleMove(Row,Col,NewRow,NewCol,T),
+    row(Row),col(Col),row(NewRow), col(NewCol)
+    % color_to_move(T,Color),
+    % guarded(NewRow, NewCol, Row, Col, Color, T),
+    % % cannot take friendly piece down
+    % not chessman(_, Color, NewRow, NewCol, T),
+    % chessman(_, Color, Row, Col, T)
+    }=1 :- time(T), T<N : checkmate(N).
 
 % it cannot be the case that there is more than 1 chessman on a square
 :- chessman(P,Color,R,C,T), chessman(P',Color',R',C',T), (P,Color)!=(P',Color'), (R,C)==(R',C').
@@ -71,6 +78,7 @@ pinned(R, C, R0, C0, Dir, T) :-
     linearAttack(R,C, ECol, Dir, R0, C0,T),
     linearAttack(R,C, Col, Dir2, RK, CK,T),
     chessman(_, Col, R,C,T),
+    not chessman(king,ECol,R0,C0,T),
     chessman(king, Col, RK, CK, T),
     (R,C) != (RK,CK),
     enemy(Col, ECol).
@@ -96,9 +104,18 @@ pinMoves(R,C, R', C', T) :-
     (R',C') != (RK,CK), % does not include the king's square as a pin move
     oppDir(DirA,DirK).
 
+% _attacking_piece_count(N, T):-
+%     #count{(R0, C0) : guarded(RK,CK,R0,C0,ECol,T), chessman(king,Col,RK,CK,T), enemy(Col, ECol),color_to_move(T,Col)}=N,
+%     chessman(_,Col,R,C,T),
+%     color_to_move(T,Col),
+%     guarded(R',C',R,C,Col,T),
+%     not chessman(_,Col,R',C',T),
+%     row(R'), col(C'),
+%     pinMoves(R,C,R',C',T) : pinned(R,C,_,_,_,T).
+
 % possible moves when no check
 possibleMove(R,C,R',C',T) :-
-    #count{(R0, C0) : guarded(RK,CK,R0,C0,ECol,T), chessman(king,Col,RK,CK,T), enemy(Col, ECol)}=0,
+    #count{(R0, C0) : guarded(RK,CK,R0,C0,ECol,T), chessman(king,Col,RK,CK,T), enemy(Col, ECol),color_to_move(T,Col)}=0,
     chessman(_,Col,R,C,T),
     color_to_move(T,Col),
     guarded(R',C',R,C,Col,T),
@@ -108,24 +125,28 @@ possibleMove(R,C,R',C',T) :-
 
 % friendly pices taking out or block the sole attacker
 possibleMove(R,C,R',C',T) :-
-    #count{(R0, C0) : guarded(RK,CK,R0,C0,ECol,T), enemy(Col, ECol)}=1,
+    #count{(R0, C0) : guarded(RK,CK,R0,C0,ECol,T),chessman(king,Col,RK,CK,T),enemy(Col, ECol),color_to_move(T,Col)}=1,
     chessman(king,Col,RK,CK,T),
     (RK, CK) != (R,C),
     color_to_move(T,Col),
     guarded(R',C',R,C,Col,T),
     not chessman(_,Col,R',C',T),
     row(R'), col(C'),
-    blockSquare(R',C',T),
+    chessman(EPiece,ECol,ER,EC, T),
+    guarded(RK,CK,ER,EC,ECol,T),
+    enemy(Col,ECol),
+    blockSquare(R',C',T) : linPiece(EPiece, _);
     pinMoves(R,C,R',C',T) : pinned(R,C,_,_,_,T).
 
 % king moving out of check
 possibleMove(RK,CK,R',C',T) :-
     % the king could always move to a safe spot if allowed
-    #count{(R0, C0) : guarded(RK,CK,R0,C0,ECol,T), chessman(king,Col,RK,CK,T), enemy(Col, ECol)}=N,
+    #count{(R0, C0) : guarded(RK,CK,R0,C0,ECol,T), chessman(king,Col,RK,CK,T), enemy(Col, ECol), color_to_move(T,Col)}=N,
     N<=2,
     chessman(king,Col,RK,CK,T),
     color_to_move(T,Col),
     guarded(R',C',RK,CK,Col,T),
+    not chessman(_,Col,R',C',T),
     not guarded(R',C',_,_,ECol,T),
     not xray(R',C',ECol,T),
     row(R'), col(C'),
@@ -133,7 +154,7 @@ possibleMove(RK,CK,R',C',T) :-
     
     
 % #show linearAttack/7.
-% #show guarded/6.
+#show guarded/6.
 % #show pinned/6.
 % #show blockSquare/3.
 % #show pinMoves/5.
@@ -141,4 +162,8 @@ possibleMove(RK,CK,R',C',T) :-
 % #show color_to_move/2.
 #show chessman/5.
 #show checkmate/1.
+#show check/2.
+#show xray/4.
 #show possibleMove/5.
+#show _attacking_piece_count/2.
+#show possible_moves_at_time/2.
