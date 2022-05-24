@@ -37,7 +37,7 @@ linearAttack(R',C',Col,Dir,R0,C0,T) :-
     C' = C + DeltaC, col(C'),
     (R,C) == (R0,C0) : chessman(_,_,R,C,T).
 
-% 
+% xray attack the square after a king if a linear attack is occuring on a kings square.
 xray(R',C',Col,T) :-
     enemy(Col,ECol),
     dir(Dir, DeltaR, DeltaC),
