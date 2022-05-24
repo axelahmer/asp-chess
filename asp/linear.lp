@@ -26,13 +26,11 @@ linPiece(
 
 % a linear piece radiates linear attacks outwards, starting from its current square in every relevant direction.
 linearAttack(R,C,Col,Dir,R,C,T) :- 
-    time(T), row(R), col(C), color(Col),
     linPiece(P,Dir),
     chessman(P,Col,R,C,T).
 
 % a linear attack continues unless it is blocked by a piece!
 linearAttack(R',C',Col,Dir,R0,C0,T) :-
-    time(T), row(R0), col(C0), color(Col), row(R), col(C),
     dir(Dir, DeltaR, DeltaC),
     linearAttack(R,C,Col,Dir,R0,C0,T),
     R' = R + DeltaR, row(R'),
