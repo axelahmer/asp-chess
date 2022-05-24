@@ -37,6 +37,15 @@ linearAttack(R',C',Col,Dir,R0,C0,T) :-
     C' = C + DeltaC, col(C'),
     (R,C) == (R0,C0) : chessman(_,_,R,C,T).
 
+% 
+xray(R',C',Col,T) :-
+    enemy(Col,ECol),
+    dir(Dir, DeltaR, DeltaC),
+    linearAttack(R,C,Col,Dir,R0,C0,T),
+    chessman(king,ECol,R,C,T),
+    R' = R + DeltaR, row(R'),
+    C' = C + DeltaC, col(C').
+
 % a square is guarded if there is a linear attack on that square - if the piece is not standing on that square already.
 guarded(R,C,R0,C0,Col,T) :- 
     linearAttack(R,C,Col,_,R0,C0,T),
@@ -44,6 +53,7 @@ guarded(R,C,R0,C0,Col,T) :-
 
 % test case
 chessman(rook,white,1,1,1).
-chessman(rook,black,1,2,1).
+chessman(king,black,1,2,1).
 
 #show guarded/6.
+#show xray/4.
