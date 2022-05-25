@@ -15,7 +15,7 @@ color_to_move(T, black) :- color_to_move(T-1, white), time(T).
 
 % it cannot be the case that after a move that color is in check
 % color_to_move(Color, T), it cannot be the case that enemy(Color, EnemyColor) check(EnemyColor, T)
-:- time(T), color_to_move(T,white), check(white, T+1).
+% :- time(T), color_to_move(T,white), check(white, T+1).
 
 % new definition of checkmate:
 checkmate(T) :-
