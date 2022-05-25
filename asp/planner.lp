@@ -42,7 +42,7 @@ check(C,T) :-
     chessman(king, C, Row, Col, T).
 
 % minimize the number of moves until checkmate
-#minimize{N@10:checkmate(N)}.
+% #minimize{N@10:checkmate(N)}.
 
 % we prefer a small amount of possible white moves.
 :~ {possibleMove(_,_,_,_,T): color_to_move(T,white), time(T)}=N. [N@1]
