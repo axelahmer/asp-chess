@@ -48,7 +48,11 @@ check(C,T) :-
 % :~ {possibleMove(_,_,_,_,T): color_to_move(T,white), time(T)}=N. [N@1]
 
 % blacks possible moves = 1 at every time
-:- not {possibleMove(_,_,_,_,T) : color_to_move(T,black), time(T)}=1.
+% :- not {possibleMove(_,_,_,_,T) : color_to_move(T,black), time(T)}=1.
+
+:- possibleMove(R1,C1,R2,C2,T), color_to_move(T, black), time(T), possibleMove(R1',C1',R2',C2',T), (R1,C1,R2,C2) != (R1',C1',R2',C2').
+
+% :- possibleMOve(M.....T), color(T ,black), time(T), possiblemove(M2,..T), M1 != M2.
 
 % there must be a checkmate
 :- not {checkmate(N) : color_to_move(N,black), time(N)}=1. 
