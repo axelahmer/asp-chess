@@ -15,7 +15,7 @@ color_to_move(T, black) :- color_to_move(T-1, white), time(T).
 
 % it cannot be the case that after a move that color is in check
 % color_to_move(Color, T), it cannot be the case that enemy(Color, EnemyColor) check(EnemyColor, T)
-% :- time(T), color_to_move(T,Color), check(Color, T+1).
+:- time(T), color_to_move(T,white), check(white, T+1).
 
 % new definition of checkmate:
 checkmate(T) :-
@@ -23,6 +23,12 @@ checkmate(T) :-
     time(T),
     {possibleMove(_,_,_,_,T)}=0,
     check(C,T).
+
+stalemate(T) :-
+    color_to_move(T,C),
+    time(T),
+    {possibleMove(_,_,_,_,T)}=0,
+    not check(C,T).
 
 % possible_moves_at_time(T,N) :-
 %     color_to_move(T,C),
@@ -36,12 +42,16 @@ check(C,T) :-
     chessman(king, C, Row, Col, T).
 
 % minimize the number of moves until checkmate
-#minimize{N:checkmate(N)}.
+#minimize{N@10:checkmate(N)}.
 
+% we prefer a small amount of possible white moves.
+:~ {possibleMove(_,_,_,_,T): color_to_move(T,white), time(T)}=N. [N@1]
+
+% blacks possible moves = 1 at every time
 :- not {possibleMove(_,_,_,_,T) : color_to_move(T,black), time(T)}=1.
 
 % there must be a checkmate
-% :- not {checkmate(N) : color_to_move(N,black), time(N)}=1. 
+:- not {checkmate(N) : color_to_move(N,black), time(N)}=1. 
 
 % the checkmate must not be on white
 % :- checkmate(N), color_to_move(N,white).
@@ -66,12 +76,17 @@ chessman(Piece, Color, Row, Col, T+1) :-
 { move(Row, Col, NewRow, NewCol, T) :
     possibleMove(Row,Col,NewRow,NewCol,T),
     row(Row),col(Col),row(NewRow), col(NewCol)
-    % color_to_move(T,Color),
-    % guarded(NewRow, NewCol, Row, Col, Color, T),
-    % % cannot take friendly piece down
-    % not chessman(_, Color, NewRow, NewCol, T),
-    % chessman(_, Color, Row, Col, T)
     }=1 :- time(T), T<N : checkmate(N).
+
+% { move(Row, Col, NewRow, NewCol, T) :
+%     guarded(NewRow, NewCol, Row, Col, Color, T),
+%     row(Row),col(Col),row(NewRow), col(NewCol),
+%     % cannot take friendly piece down
+%     not chessman(_, white, NewRow, NewCol, T),
+%     chessman(_, white, Row, Col, T)
+%     }=1 :- color_to_move(T,white), time(T), T<N : checkmate(N).
+
+
 
 % it cannot be the case that there is more than 1 chessman on a square
 :- chessman(P,Color,R,C,T), chessman(P',Color',R',C',T), (P,Color)!=(P',Color'), (R,C)==(R',C'), time(T).
@@ -117,9 +132,13 @@ pinMoves(R,C, R', C', T) :-
 %     row(R'), col(C'),
 %     pinMoves(R,C,R',C',T) : pinned(R,C,_,_,_,T).
 
+numChecks(N,T) :-
+    #count{(R0, C0) : guarded(RK,CK,R0,C0,ECol,T), chessman(king,Col,RK,CK,T), enemy(Col, ECol), color_to_move(T,Col)}=N,
+    time(T).
+
 % possible moves when no check
 possibleMove(R,C,R',C',T) :-
-    #count{(R0, C0) : guarded(RK,CK,R0,C0,ECol,T), chessman(king,Col,RK,CK,T), enemy(Col, ECol),color_to_move(T,Col)}=0,
+    numChecks(0,T),
     chessman(P,Col,R,C,T),
     P != king,
     color_to_move(T,Col),
@@ -130,7 +149,7 @@ possibleMove(R,C,R',C',T) :-
 
 % friendly pices taking out or block the sole attacker
 possibleMove(R,C,R',C',T) :-
-    #count{(R0, C0) : guarded(RK,CK,R0,C0,ECol,T),chessman(king,Col,RK,CK,T),enemy(Col, ECol),color_to_move(T,Col)}=1,
+    numChecks(1,T),
     chessman(king,Col,RK,CK,T),
     (RK, CK) != (R,C),
     color_to_move(T,Col),
@@ -144,10 +163,10 @@ possibleMove(R,C,R',C',T) :-
     pinMoves(R,C,R',C',T) : pinned(R,C,_,_,_,T),
     time(T).
 
-% king moving out of check
+% king moving out of check / genearlly moving the king
 possibleMove(RK,CK,R',C',T) :-
     % the king could always move to a safe spot if allowed
-    #count{(R0, C0) : guarded(RK,CK,R0,C0,ECol,T), chessman(king,Col,RK,CK,T), enemy(Col, ECol), color_to_move(T,Col)}=N,
+    numChecks(N,T),
     N<=2,
     chessman(king,Col,RK,CK,T),
     color_to_move(T,Col),
