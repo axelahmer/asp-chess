@@ -193,3 +193,4 @@ possibleMove(RK,CK,R',C',T) :-
 #show possibleMove/5.
 % #show _attacking_piece_count/2.
 % #show possible_moves_at_time/2.
+#show numChecks/2.
