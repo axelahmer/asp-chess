@@ -42,7 +42,7 @@ check(C,T) :-
     chessman(king, C, Row, Col, T).
 
 % minimize the number of moves until checkmate
-#minimize{N@10:checkmate(N)}.
+% #minimize{N@10:checkmate(N)}.
 
 % we prefer a small amount of possible white moves.
 % :~ {possibleMove(_,_,_,_,T): color_to_move(T,white), time(T)}=N. [N@1]
@@ -51,7 +51,7 @@ check(C,T) :-
 :- possibleMove(R1,C1,R2,C2,T), color_to_move(T, black), time(T), possibleMove(R1',C1',R2',C2',T), (R1,C1,R2,C2) != (R1',C1',R2',C2').
 
 % there must be a checkmate
-:- not {checkmate(N) : color_to_move(N,black), time(N)}=1. 
+:- not {checkmate(N) : time(N)}=1. 
 
 % the checkmate must not be on white
 % :- checkmate(N), color_to_move(N,white).
@@ -140,22 +140,30 @@ numChecks(N,T) :-
 possibleMove(R,C,R',C',T) :-
     numChecks(0,T),
     chessman(P,Col,R,C,T),
+    enemy(Col,ECol),
     P != king,
     color_to_move(T,Col),
-    guarded(R',C',R,C,Col,T),
+    guarded(R',C',R,C,Col,T) : P!= pawn;
+    (R', C') = (R+1, C) : P == pawn, Col= white, not chessman(_, _, R+1, C, T);
+    (R', C') = (R-1, C) : P == pawn, Col= black, not chessman(_, _, R-1, C, T);
+    chessman(_,ECol,R',C',T) : chessman(pawn, Col, R, C, T), guarded(R',C',R,C,Col,T);
     not chessman(_,Col,R',C',T),
-    row(R'), col(C'), time(T),
+    row(R'), col(C'), row(R), col(C), time(T),
     pinMoves(R,C,R',C',T) : pinned(R,C,_,_,_,T).
 
 % friendly pices taking out or block the sole attacker
 possibleMove(R,C,R',C',T) :-
-    numChecks(1,T),
-    chessman(king,Col,RK,CK,T),
-    (RK, CK) != (R,C),
+    numChecks(1,T), % number of check = 1
+    chessman(king,Col,RK,CK,T), % king is at RK,CK
+    (RK, CK) != (R,C),  % king is not the piece that is moving
     color_to_move(T,Col),
-    guarded(R',C',R,C,Col,T),
+    chessman(P,Col,R,C,T),  % friendly piece that is moving
+    guarded(R',C',R,C,Col,T) : P!= pawn;
+    (R', C') = (R+1, C) : P == pawn, Col= white, not chessman(_, _, R+1, C, T);
+    (R', C') = (R-1, C) : P == pawn, Col= black, not chessman(_, _, R-1, C, T);
+    chessman(_,ECol,R',C',T) : chessman(pawn, Col, R, C, T), guarded(R',C',R,C,Col,T);
     not chessman(_,Col,R',C',T),
-    row(R'), col(C'),
+    row(R'), col(C'), row(R), col(C),
     chessman(EPiece,ECol,ER,EC, T),
     guarded(RK,CK,ER,EC,ECol,T),
     enemy(Col,ECol),

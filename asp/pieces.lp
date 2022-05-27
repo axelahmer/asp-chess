@@ -5,9 +5,13 @@ piece(knight; rook).
 % Guarded: What squares a piece is protecting/attacking.
 
 % PAWNS
-guarded(Row+1, Col+1, Row, Col, T;
-        Row+1, Col-1, Row, Col, T) :-
+guarded(Row+1, Col+1, Row, Col, white, T;
+        Row+1, Col-1, Row, Col, white, T) :-
     chessman(pawn, white, Row, Col, T), time(T).
+
+guarded(Row-1, Col+1, Row, Col, black, T;
+        Row-1, Col-1, Row, Col, black, T) :-
+    chessman(pawn, black, Row, Col, T), time(T).
 
 % KNIGHTS
 guarded(
