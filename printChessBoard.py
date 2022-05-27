@@ -47,7 +47,7 @@ def read_prolog(arr, dimension, k):
         elif chess.startswith("guarded"):
             index = chess.find('(')
             index_end = chess.find(')')
-            row, col, _, _, color, time = chess[index+1:index_end].split(',')
+            _, row, col, _, _, color, time = chess[index+1:index_end].split(',')
             row, col, time = int(row), int(col), int(time) -1
             if row > dimension or col > dimension or row < 1 or col < 1:
                 continue
@@ -70,7 +70,8 @@ def print_board(board, dimension):
 
 
 def run_clingo(n, k, white_count, black_count, l):
-    os.system(f"clingo asp/init.lp asp/pieces.lp asp/linear.lp asp/planner.lp -c n={n} -c k={k} -c white_count={white_count} -c black_count={black_count} --opt-mode optN -n {l} > output.txt")
+    # os.system(f"clingo asp/init.lp asp/pieces.lp asp/linear.lp asp/planner.lp -c n={n} -c k={k} -c white_count={white_count} -c black_count={black_count} --opt-mode optN -n {l} > output.txt")
+    os.system(f"clingo asp\sebastian.lp -c n={n} -c k={k} -c w={white_count} -c b={black_count} --opt-mode optN -n {l} > output.txt")
 
 
 def read_output_and_print(n, k):
