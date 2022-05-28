@@ -27,11 +27,17 @@ numDMoves(T,N):-
     color_to_move(T,Col),
     {dynamicMove(_,_,_,_,T)} = N.
 
+numLMoves(T,N):-
+    time(T),
+    color_to_move(T,Col),
+    {legalMove(_,_,_,_,T)} = N.
+
 checkmate(T) :-
     time(T),
     color_to_move(T,Col),
     check(Col,T),
-    {dynamicMove(_,_,_,_,T)}=0.
+    % not move(_,_,_,_,T).
+    {legalMove(_,_,_,_,T)}=0.
 
 % chessman that moved
 ichessman(DMove, P, Col, R',C',T+1) :- 
@@ -52,7 +58,7 @@ ichessman(DMove, P, Col, R, C, T+1) :-
 
 
 % for all time before a checkmate there must be a move made.
-{move(R,C,R',C',T) : dynamicMove(R,C, R',C',T)}=1 :- % , row(R), col(C), row(R'), col(C')
+{move(R,C,R',C',T) : legalMove(R,C, R',C',T)}=1 :- % , row(R), col(C), row(R'), col(C')
     time(T),
     T<N : checkmate(N).
 
@@ -66,6 +72,14 @@ chessman(P, Col, R', C', T) :-
 move(dynamicMove(MR, MC, MR', MC',T), T) :- 
     % dynamicMove(MR, MC, MR', MC',T),
     move(MR, MC, MR', MC',T).
+
+% a piece can never move such that its king is in check the next timestep
+legalMove(R, C, R', C', T) :- 
+    dynamicMove(R, C, R', C', T), 
+    not check(dynamicMove(R, C, R', C', T), Col, T+1), 
+    time(T),
+    color_to_move(T,Col),
+    not chessman(_,Col,R',C',T).
 
 dynamicMove(R, C, R', C', T) :- 
     color_to_move(T,Col), 
@@ -89,16 +103,20 @@ dynamicMove(R, C, R', C', T) :-
     itime(T).
 
 % a piece can never move such that its king is in check the next timestep
-:-  time(T),
-    color_to_move(T,Col),
-    check(DMove,Col,T+1),
-    dynamicMove(R,C,R',C',T),
-    DMove = dynamicMove(R,C,R',C',T).
+% :-  time(T),
+%     color_to_move(T,Col),
+%     check(dynamicMove(R,C,R',C',T),Col,T+1),
+%     dynamicMove(R,C,R',C',T).
+    % ,Col,T+1),
+    % dynamicMove(R,C,R',C',T),
+    % DMove = dynamicMove(R,C,R',C',T).
 
 % a piece can never take its own color.
-:-  dynamicMove(R, C, R', C', T),
-    color_to_move(T,Col),
-    chessman(_,Col,R',C',T).
+% :-  time(T),
+%     dynamicMove(R, C, R', C', T),
+%     color_to_move(T,Col),
+%     chessman(_,Col,R',C',T),
+%     move(R,C,R',C',T).
 
 
 % there can not be more than 1 dynamic move for black every turn.
@@ -151,7 +169,7 @@ dynamicMove(0,0,0,0,0).
 move(0,0,0,0,0).
 
 % 2 kings: 1 white, 1 black
-% {chessman(king, black, Row, Col, 1) : row(Row), col(Col)} = 1.
+{chessman(king, black, Row, Col, 1) : row(Row), col(Col)} = 1.
 {chessman(king, white, Row, Col, 1) : row(Row), col(Col)} = 1.
 {chessman(knight, white, Row, Col, 1) : row(Row), col(Col)} = w.
 {chessman(knight, black, Row, Col, 1) : row(Row), col(Col)} = b.
@@ -161,7 +179,7 @@ move(0,0,0,0,0).
 % #show ichessman/6.
 % #show check/3.
 #show checkmate/1.
-% #show guarded/6.
+#show guarded/6.
 % #show guarded/7.
 % #show color_to_move/2.
 #show check/2.
@@ -169,4 +187,5 @@ move(0,0,0,0,0).
 #show checkmate/1.
 #show numDMoves/2.
 #show dynamicMove/5.
-% :- not checkmate(2).
+#show numLMoves/2.
+:- not checkmate(2).
