@@ -75,11 +75,11 @@ dynamicMove(R, C, R', C', T) :-
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% CONSTRAINTS %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 % there must be a checkmate
-% :- not {checkmate(N) : time(N)}=1. 
+:- not {checkmate(N) : time(N)}=1. 
 
 % it cannot be the case that there is more than 1 chessman on a square
-:-  chessman(P,Col,R,C,T),
-    chessman(P',Col',R',C',T),
+:-  ichessman(DMove,P,Col,R,C,T),
+    ichessman(DMove,P',Col',R',C',T),
     (P,Col)!=(P',Col'),
     (R,C)==(R',C'),
     time(T).
@@ -99,7 +99,8 @@ dynamicMove(R, C, R', C', T) :-
 % there can not be more than 1 dynamic move for black every turn.
 % :- time(T), color_to_move(T, black), dynamicMove(R1,C1,R1',C1',T), dynamicMove(R2,C2,R2',C2',T), (R1,C1,R1',C1') != (R2,C2,R2',C2').
 
-
+% constrain check at t2
+% :- not check(_,2).
 
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% PIECES %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -151,7 +152,7 @@ move(0,0,0,0,0).
 {chessman(knight, black, Row, Col, 1) : row(Row), col(Col)} = b.
 
 #show chessman/5.
-% #show move/5.
+#show move/5.
 % % #show ichessman/6.
 % #show check/3.
 #show checkmate/1.
@@ -161,4 +162,3 @@ move(0,0,0,0,0).
 #show check/2.
 #show check/3.
 
-check(black,2).
