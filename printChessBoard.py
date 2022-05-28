@@ -47,7 +47,7 @@ def read_prolog(arr, dimension, k):
         elif chess.startswith("guarded"):
             index = chess.find('(')
             index_end = chess.find(')')
-            _, row, col, _, _, color, time = chess[index+1:index_end].split(',')
+            row, col, _, _, color, time = chess[index+1:index_end].split(',')
             row, col, time = int(row), int(col), int(time) -1
             if row > dimension or col > dimension or row < 1 or col < 1:
                 continue

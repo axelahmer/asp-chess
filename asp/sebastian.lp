@@ -50,13 +50,13 @@ ichessman(DMove, P, Col, R, C, T+1) :-
 % for all time before a checkmate there must be a move made.
 {move(R,C,R',C',T) : dynamicMove(R,C, R',C',T)}=1 :- % , row(R), col(C), row(R'), col(C')
     time(T),
-    T<N : checkmate(N).
+    T<k.
 
 % real chessmen are created for the selected dynamicMove. 
 chessman(P, Col, R', C', T+1) :- 
     time(T),
-    move(MR, MC, MR', MC',T),
-    ichessman(dynamicMove(MR, MC, MR', MC',T), P, Col, R', C', T+1).
+    move(DMove, T),
+    ichessman(DMove, P, Col, R', C', T+1).
 
 % helper predicate to extract the previous concrete DMove
 move(dynamicMove(MR, MC, MR', MC',T), T) :- 
@@ -104,7 +104,17 @@ dynamicMove(R, C, R', C', T) :-
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% PIECES %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-guarded(R',C',R,C,Col,T) :- time(T), move(DMove, T), guarded(DMove, R',C',R,C,Col,T).
+guarded(R',C',R,C,Col,T) :-
+    time(T),
+    move(DMove, T-1),
+    guarded(DMove, R',C',R,C,Col,T).
+
+check(Col, T) :-
+    time(T),
+    move(DMove, T-1),
+    check(DMove,Col,T).
+
+
 % KNIGHTS
 guarded(DMove, R+2, C+1, R, C, Col, T;
         DMove, R+1, C+2, R, C, Col, T;
@@ -141,8 +151,14 @@ move(0,0,0,0,0).
 {chessman(knight, black, Row, Col, 1) : row(Row), col(Col)} = b.
 
 #show chessman/5.
-#show move/5.
-% #show ichessman/6.
-#show check/3.
+% #show move/5.
+% % #show ichessman/6.
+% #show check/3.
 #show checkmate/1.
 #show guarded/6.
+% #show guarded/7.
+% #show color_to_move/2.
+#show check/2.
+#show check/3.
+
+check(black,2).
