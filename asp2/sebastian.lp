@@ -120,7 +120,7 @@ dynamicMove(R, C, R', C', T) :-
 
 
 % there can not be more than 1 dynamic move for black every turn.
-% :- time(T), color_to_move(T, black), dynamicMove(R1,C1,R1',C1',T), dynamicMove(R2,C2,R2',C2',T), (R1,C1,R1',C1') != (R2,C2,R2',C2').
+:- time(T), color_to_move(T, black), legalMove(R1,C1,R1',C1',T), legalMove(R2,C2,R2',C2',T), (R1,C1,R1',C1') != (R2,C2,R2',C2').
 
 % constrain check at t2
 % :- not check(_,2).
@@ -168,11 +168,14 @@ ichessman(dynamicMove(0,0,0,0,0), P, Col, R, C, 1)  :- chessman(P, Col, R, C, 1)
 dynamicMove(0,0,0,0,0).
 move(0,0,0,0,0).
 
+
+piece(knight;bishop;rook;queen).
+
 % 2 kings: 1 white, 1 black
 {chessman(king, black, Row, Col, 1) : row(Row), col(Col)} = 1.
 {chessman(king, white, Row, Col, 1) : row(Row), col(Col)} = 1.
-{chessman(knight, white, Row, Col, 1) : row(Row), col(Col)} = w.
-{chessman(knight, black, Row, Col, 1) : row(Row), col(Col)} = b.
+{chessman(Piece, white, Row, Col, 1) : row(Row), col(Col), piece(Piece)} = w.
+{chessman(Piece, black, Row, Col, 1) : row(Row), col(Col), piece(Piece)} = b.
 
 #show chessman/5.
 % #show move/5.
@@ -186,6 +189,6 @@ move(0,0,0,0,0).
 % #show check/3.
 #show checkmate/1.
 #show numDMoves/2.
-#show dynamicMove/5.
+% #show dynamicMove/5.
 #show numLMoves/2.
-:- not checkmate(2).
+:- not checkmate(4).
