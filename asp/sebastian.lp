@@ -35,19 +35,18 @@ checkmate(T) :-
 
 % chessman that moved
 ichessman(DMove, P, Col, R',C',T+1) :- 
-    time(T+1),
+    itime(T+1),
     dynamicMove(R,C,R',C',T),
     DMove = dynamicMove(R,C,R',C',T),
     chessman(P,Col,R,C,T).
 
 % add to the set of chessmen at t+1 all the men who have not moved.
 ichessman(DMove, P, Col, R, C, T+1) :-
-    time(T+1),
+    itime(T+1),
     dynamicMove(R0, C0, R1, C1, T),
     DMove = dynamicMove(R0, C0, R1, C1, T),
     (R, C) != (R0, C0), % the chessman cannot be the one who moved
     (R, C) != (R1, C1), % the chessman cannot be the one being taken
-    time(T),
     chessman(P, Col, R, C, T),
     color(Col).
 
