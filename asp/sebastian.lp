@@ -1,6 +1,7 @@
 row(1..n).
 col(1..n).
 time(1..k).
+itime(1..k+1).
 color(white).
 color(black).
 enemy(white, black).
@@ -21,12 +22,16 @@ check(DMove, Col, T) :-
     guarded(DMove, KR, KC, _, _, ECol, T),
     ichessman(DMove, king, Col, KR, KC, T).
 
+numDMoves(T,N):-
+    time(T),
+    color_to_move(T,Col),
+    {dynamicMove(_,_,_,_,T)} = N.
+
 checkmate(T) :-
     time(T),
     color_to_move(T,Col),
-    {dynamicMove(_,_,_,_,T)}=0,
-    move(DMove,T-1),
-    check(DMove, Col, T).
+    check(Col,T),
+    {dynamicMove(_,_,_,_,T)}=0.
 
 % chessman that moved
 ichessman(DMove, P, Col, R',C',T+1) :- 
@@ -50,7 +55,7 @@ ichessman(DMove, P, Col, R, C, T+1) :-
 % for all time before a checkmate there must be a move made.
 {move(R,C,R',C',T) : dynamicMove(R,C, R',C',T)}=1 :- % , row(R), col(C), row(R'), col(C')
     time(T),
-    T<k.
+    T<N : checkmate(N).
 
 % real chessmen are created for the selected dynamicMove. 
 chessman(P, Col, R', C', T+1) :- 
@@ -68,7 +73,7 @@ dynamicMove(R, C, R', C', T) :-
     chessman(_,Col,R,C,T), 
     guarded(DMove,R',C',R,C,_,T), 
     row(R'), col(C'),
-    time(T),
+    itime(T),
     move(DMove, T-1).
 
 
@@ -82,13 +87,12 @@ dynamicMove(R, C, R', C', T) :-
     ichessman(DMove,P',Col',R',C',T),
     (P,Col)!=(P',Col'), % different piece
     (DMove, R,C)==(DMove, R',C'), % same location
-    time(T).
+    itime(T).
 
 % a piece can never move such that its king is in check the next timestep
 :-  time(T),
     color_to_move(T,Col),
-    check(dynamicMove(R,C,R',C',T),Col,T+1),
-    dynamicMove(R,C,R',C',T).
+    check(dynamicMove(R,C,R',C',T),Col,T+1) : dynamicMove(R,C,R',C',T).
 
 % a piece can never take its own color.
 :-  dynamicMove(R, C, R', C', T),
@@ -152,7 +156,7 @@ move(0,0,0,0,0).
 {chessman(knight, black, Row, Col, 1) : row(Row), col(Col)} = b.
 
 #show chessman/5.
-#show move/5.
+% #show move/5.
 % % #show ichessman/6.
 % #show check/3.
 #show checkmate/1.
@@ -161,4 +165,8 @@ move(0,0,0,0,0).
 % #show color_to_move/2.
 #show check/2.
 #show check/3.
+#show checkmate/1.
 
+#show numDMoves/2.
+
+% :- not checkmate(2).
