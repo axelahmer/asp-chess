@@ -75,13 +75,13 @@ dynamicMove(R, C, R', C', T) :-
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% CONSTRAINTS %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 % there must be a checkmate
-:- not {checkmate(N) : time(N)}=1. 
+% :- not {checkmate(N) : time(N)}=1. 
 
 % it cannot be the case that there is more than 1 chessman on a square
 :-  ichessman(DMove,P,Col,R,C,T),
     ichessman(DMove,P',Col',R',C',T),
-    (P,Col)!=(P',Col'),
-    (R,C)==(R',C'),
+    (P,Col)!=(P',Col'), % different piece
+    (DMove, R,C)==(DMove, R',C'), % same location
     time(T).
 
 % a piece can never move such that its king is in check the next timestep
