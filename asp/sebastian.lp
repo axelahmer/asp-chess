@@ -57,10 +57,10 @@ ichessman(DMove, P, Col, R, C, T+1) :-
     T<N : checkmate(N).
 
 % real chessmen are created for the selected dynamicMove. 
-chessman(P, Col, R', C', T+1) :- 
+chessman(P, Col, R', C', T) :- 
     time(T),
-    move(DMove, T),
-    ichessman(DMove, P, Col, R', C', T+1).
+    move(DMove, T-1),
+    ichessman(DMove, P, Col, R', C', T).
 
 % helper predicate to extract the previous concrete DMove
 move(dynamicMove(MR, MC, MR', MC',T), T) :- 
@@ -91,7 +91,9 @@ dynamicMove(R, C, R', C', T) :-
 % a piece can never move such that its king is in check the next timestep
 :-  time(T),
     color_to_move(T,Col),
-    check(dynamicMove(R,C,R',C',T),Col,T+1) : dynamicMove(R,C,R',C',T).
+    check(DMove,Col,T+1),
+    dynamicMove(R,C,R',C',T),
+    DMove = dynamicMove(R,C,R',C',T).
 
 % a piece can never take its own color.
 :-  dynamicMove(R, C, R', C', T),
@@ -149,23 +151,22 @@ dynamicMove(0,0,0,0,0).
 move(0,0,0,0,0).
 
 % 2 kings: 1 white, 1 black
-{chessman(king, black, Row, Col, 1) : row(Row), col(Col)} = 1.
+% {chessman(king, black, Row, Col, 1) : row(Row), col(Col)} = 1.
 {chessman(king, white, Row, Col, 1) : row(Row), col(Col)} = 1.
 {chessman(knight, white, Row, Col, 1) : row(Row), col(Col)} = w.
 {chessman(knight, black, Row, Col, 1) : row(Row), col(Col)} = b.
 
 #show chessman/5.
 % #show move/5.
-% % #show ichessman/6.
+% #show ichessman/6.
 % #show check/3.
 #show checkmate/1.
-#show guarded/6.
+% #show guarded/6.
 % #show guarded/7.
 % #show color_to_move/2.
 #show check/2.
-#show check/3.
+% #show check/3.
 #show checkmate/1.
-
 #show numDMoves/2.
-
+#show dynamicMove/5.
 % :- not checkmate(2).
