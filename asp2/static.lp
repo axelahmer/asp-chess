@@ -36,7 +36,6 @@ checkmate(T) :-
     time(T),
     color_to_move(T,Col),
     check(Col,T),
-    % not move(_,_,_,_,T).
     {legalMove(_,_,_,_,T)}=0.
 
 % chessman that moved
@@ -102,31 +101,11 @@ dynamicMove(R, C, R', C', T) :-
     (DMove, R,C)==(DMove, R',C'), % same location
     itime(T).
 
-% a piece can never move such that its king is in check the next timestep
-% :-  time(T),
-%     color_to_move(T,Col),
-%     check(dynamicMove(R,C,R',C',T),Col,T+1),
-%     dynamicMove(R,C,R',C',T).
-    % ,Col,T+1),
-    % dynamicMove(R,C,R',C',T),
-    % DMove = dynamicMove(R,C,R',C',T).
-
-% a piece can never take its own color.
-% :-  time(T),
-%     dynamicMove(R, C, R', C', T),
-%     color_to_move(T,Col),
-%     chessman(_,Col,R',C',T),
-%     move(R,C,R',C',T).
-
-
-% there can not be more than 1 dynamic move for black every turn.
+% there can not be more than 1 legal move for black every turn.
 :- time(T), color_to_move(T, black), legalMove(R1,C1,R1',C1',T), legalMove(R2,C2,R2',C2',T), (R1,C1,R1',C1') != (R2,C2,R2',C2').
 
 % constrain check at t2
 % :- not check(_,2).
-
-
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% PIECES %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 guarded(R',C',R,C,Col,T) :-
     time(T),
@@ -138,36 +117,11 @@ check(Col, T) :-
     move(DMove, T-1),
     check(DMove,Col,T).
 
-
-% KNIGHTS
-guarded(DMove, R+2, C+1, R, C, Col, T;
-        DMove, R+1, C+2, R, C, Col, T;
-        DMove, R-1, C+2, R, C, Col, T;
-        DMove, R-2, C+1, R, C, Col, T;
-        DMove, R-2, C-1, R, C, Col, T;
-        DMove, R-1, C-2, R, C, Col, T;
-        DMove, R+1, C-2, R, C, Col, T;
-        DMove, R+2, C-1, R, C, Col, T) :-
-    ichessman(DMove, knight, Col, R, C, T).
-
-% KINGS
-guarded(DMove, R+1,  C,    R, C, Col, T;
-        DMove, R,    C+1,  R, C, Col, T;
-        DMove, R-1,  C+1,  R, C, Col, T;
-        DMove, R-1,  C,    R, C, Col, T;
-        DMove, R-1,  C-1,  R, C, Col, T;
-        DMove, R,    C-1,  R, C, Col, T;
-        DMove, R+1,  C+1,  R, C, Col, T;
-        DMove, R+1,  C-1,  R, C, Col, T) :-
-    ichessman(DMove, king, Col, R, C, T).
-
-
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% INIT %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 ichessman(dynamicMove(0,0,0,0,0), P, Col, R, C, 1)  :- chessman(P, Col, R, C, 1).
 dynamicMove(0,0,0,0,0).
 move(0,0,0,0,0).
-
 
 piece(knight;bishop;rook;queen).
 

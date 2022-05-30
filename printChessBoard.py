@@ -71,7 +71,7 @@ def print_board(board, dimension):
 
 def run_clingo(n, k, white_count, black_count, l):
     # os.system(f"clingo asp/init.lp asp/pieces.lp asp/linear.lp asp/planner.lp -c n={n} -c k={k} -c white_count={white_count} -c black_count={black_count} --opt-mode optN -n {l} > output.txt")
-    os.system(f"clingo asp2\sebastian.lp asp2\linear.lp -c n={n} -c k={k} -c w={white_count} -c b={black_count} --opt-mode optN -n {l} > output.txt")
+    os.system(f"clingo asp2\dynamic.lp asp2\linear.lp asp2\pieces.lp -c n={n} -c k={k} -c w={white_count} -c b={black_count} --opt-mode optN -n {l} > output.txt")
 
 
 def read_output_and_print(n, k):
