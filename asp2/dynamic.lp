@@ -43,7 +43,10 @@ ichessman(DMove, P, Col, R',C',T+1) :-
     itime(T+1),
     dynamicMove(R,C,R',C',T),
     DMove = dynamicMove(R,C,R',C',T),
-    chessman(P,Col,R,C,T).
+    chessman(P,Col,R,C,T),
+    % if it's white to move at time T then only evaluates the successor to the move picked
+    move(R,C,R',C',T):color_to_move(T, white) 
+    .
 
 % add to the set of chessmen at t+1 all the men who have not moved.
 ichessman(DMove, P, Col, R, C, T+1) :-
@@ -53,13 +56,22 @@ ichessman(DMove, P, Col, R, C, T+1) :-
     (R, C) != (R0, C0), % the chessman cannot be the one who moved
     (R, C) != (R1, C1), % the chessman cannot be the one being taken
     chessman(P, Col, R, C, T),
-    color(Col).
+    color(Col),
+    move(R0, C0, R1, C1, T):color_to_move(T, white).
 
 
 % for all time before a checkmate there must be a move made.
 {move(R,C,R',C',T) : legalMove(R,C, R',C',T)}=1 :- % , row(R), col(C), row(R'), col(C')
     time(T),
+    % color_to_move(T, black),
     T<N : checkmate(N).
+
+% {move(R,C,R',C',T) : dynamicMove(R,C, R',C',T)}=1 :- % , row(R), col(C), row(R'), col(C')
+%     time(T),
+%     color_to_move(T, white),
+%     T<N : checkmate(N).
+
+% :- color_to_move(T, white), check(white, T+1).
 
 % real chessmen are created for the selected dynamicMove. 
 chessman(P, Col, R', C', T) :- 
