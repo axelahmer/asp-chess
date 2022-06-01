@@ -5,8 +5,6 @@ def read_prolog(arr, dimension, k):
     max_time = 0
     for chess in arr:
         if chess.startswith('chessman'):
-            
-        
             index = chess.find('(')
             index_end = chess.find(')')
             chesspiece, color, row, col, time = chess[index+1:index_end].split(',')
@@ -87,7 +85,56 @@ def read_output_and_print(n, k):
                 print("\nAnswer {}".format(ans_count) )
                 for j in range(max_time):
                     print_board(board[j], n)
+                
+                # print("\nLatex Chessboard")
+                write_to_file(parse_latex_chessboard(board[0]))
 
+def write_to_file(latex_chessboard):
+    with open("latex.txt", "a") as writer:
+        writer.write(latex_chessboard)
+
+def parse_latex_chessboard(board):
+    def map_row_to_alphabet(n):
+        return chr(ord('`')+n)
+
+    def map_unicode_to_latex(cell):
+        if cell == '\u2655':
+            return f'Q{map_row_to_alphabet(i+1)}{j+1},'
+        elif cell == '\u265B':
+            return f'q{map_row_to_alphabet(i+1)}{j+1},'
+        elif cell == '\u2656':
+            return f'R{map_row_to_alphabet(i+1)}{j+1},'
+        elif cell == '\u265C':
+            return f'r{map_row_to_alphabet(i+1)}{j+1},'
+        elif cell == '\u2657':
+            return f'B{map_row_to_alphabet(i+1)}{j+1},'
+        elif cell == '\u265D':
+            return f'b{map_row_to_alphabet(i+1)}{j+1},'
+        elif cell == '\u2658':
+            return f'N{map_row_to_alphabet(i+1)}{j+1},'
+        elif cell == '\u265E':
+            return f'n{map_row_to_alphabet(i+1)}{j+1},'
+        elif cell == '\u2659':
+            return f'P{map_row_to_alphabet(i+1)}{j+1},'
+        elif cell == '\u265F':
+            return f'p{map_row_to_alphabet(i+1)}{j+1},'
+        elif cell == '\u2654':
+            return f'K{map_row_to_alphabet(i+1)}{j+1},'
+        elif cell == '\u265A':
+            return f'k{map_row_to_alphabet(i+1)}{j+1},'
+        else:
+            return ''
+
+    dimension = len(board)
+
+    latex_fen = f'\\dynamicplan{{{map_row_to_alphabet(dimension)}{dimension}}}{{'
+    for i in range(len(board)):
+        for j in range(len(board[i])):
+            # if there is a Piece on the board 
+            latex_fen += map_unicode_to_latex(board[i][j][1])
+    
+    return latex_fen[:-1] + '}{something can go here}\n'
+            
 
 if __name__ == "__main__":
     # val = ""
@@ -104,6 +151,6 @@ if __name__ == "__main__":
 
     k = int(input("Enter steps count \n"))
     l = int(input("Enter number of answers \n"))
-    model = input("Dynamic (d) or Static (s)")
+    model = input("Dynamic (d) or Static (s)\n")
     run_clingo(n, k, white_count, black_count, l, "dynamic" if model=='d' else 'static')
     read_output_and_print(n, k)
