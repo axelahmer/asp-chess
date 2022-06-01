@@ -11,7 +11,9 @@ color_to_move(T, black) :- color_to_move(T-1, white), time(T).
 :- time(T), color_to_move(T, black), legalMove(R1,C1,R1',C1',T), legalMove(R2,C2,R2',C2',T), (R1,C1,R1',C1') != (R2,C2,R2',C2').
 
 % there must be a checkmate at some const time
-:- not checkmate(4).
+% :- not checkmate(4).
+
+% :- check(black,2).
 
 % checkmate depends on the color to move
 checkmate(T) :-
@@ -20,3 +22,12 @@ checkmate(T) :-
     check(Col,T),
     {legalMove(_,_,_,_,T)}=0.
 
+
+% #minimize{N:checkmate(N)}.
+:~ checkmate(N). [N]
+
+% there must be a checkmate
+:- not {checkmate(N) : time(N)}=1.
+
+% the checkmate must not be on white
+:- checkmate(N), color_to_move(N,white).
