@@ -22,10 +22,10 @@ check(DMove, Col, T) :-
     guarded(DMove, KR, KC, _, _, ECol, T),
     ichessman(DMove, king, Col, KR, KC, T).
 
-% numDMoves(T,N):-
-%     time(T),
-%     color_to_move(T,Col),
-%     {dynamicMove(_,_,_,_,T)} = N.
+numDMoves(T,N):-
+    time(T),
+    color_to_move(T,Col),
+    {dynamicMove(_,_,_,_,T)} = N.
 
 numLMoves(T,N):-
     time(T),
@@ -43,10 +43,9 @@ ichessman(DMove, P, Col, R',C',T+1) :-
     itime(T+1),
     dynamicMove(R,C,R',C',T),
     DMove = dynamicMove(R,C,R',C',T),
-    chessman(P,Col,R,C,T),
+    chessman(P,Col,R,C,T).
     % if it's white to move at time T then only evaluates the successor to the move picked
-    move(R,C,R',C',T):color_to_move(T, white) 
-    .
+    % move(R,C,R',C',T):color_to_move(T, white).
 
 % add to the set of chessmen at t+1 all the men who have not moved.
 ichessman(DMove, P, Col, R, C, T+1) :-
@@ -56,8 +55,8 @@ ichessman(DMove, P, Col, R, C, T+1) :-
     (R, C) != (R0, C0), % the chessman cannot be the one who moved
     (R, C) != (R1, C1), % the chessman cannot be the one being taken
     chessman(P, Col, R, C, T),
-    color(Col),
-    move(R0, C0, R1, C1, T):color_to_move(T, white).
+    color(Col).
+    % move(R0, C0, R1, C1, T):color_to_move(T, white).
 
 
 % for all time before a checkmate there must be a move made.
@@ -105,6 +104,7 @@ dynamicMove(R, C, R', C', T) :-
 
 % there must be a checkmate
 % :- not {checkmate(N) : time(N)}=1. 
+:- not checkmate(4).
 
 % it cannot be the case that there is more than 1 chessman on a square
 :-  ichessman(DMove,P,Col,R,C,T),
@@ -115,6 +115,8 @@ dynamicMove(R, C, R', C', T) :-
 
 % there can not be more than 1 legal move for black every turn.
 :- time(T), color_to_move(T, black), legalMove(R1,C1,R1',C1',T), legalMove(R2,C2,R2',C2',T), (R1,C1,R1',C1') != (R2,C2,R2',C2').
+
+% :- move(R, C, R', C', T), check(Col, T+1), color_to_move(T, Col).
 
 % constrain check at t2
 % :- not check(_,2).
@@ -157,4 +159,3 @@ piece(knight;bishop;rook;queen).
 #show numDMoves/2.
 % #show dynamicMove/5.
 #show numLMoves/2.
-:- not checkmate(4).
