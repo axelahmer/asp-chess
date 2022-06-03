@@ -115,7 +115,7 @@ piece(knight;bishop;rook;queen).
 0{chessman(Piece, black, Row, Col, 1) : row(Row), col(Col), piece(Piece)}b.
 
 #show chessman/5.
-% #show move/5.
+#show move/5.
 % #show ichessman/6.
 % #show check/3.
 #show checkmate/1.
