@@ -45,5 +45,5 @@ checkmate(T) :-
 :- check(black,2).
 
 % soft constraints: min white piece values, max black piece values.
-:~ #sum{V,R,C : chessman(P,white,R,C,1), value(P,V)}=T. [T@10]
-:~ #sum{V,R,C : chessman(P,black,R,C,1), value(P,V)}=T. [-T@5]
+% :~ #sum{V,R,C : chessman(P,white,R,C,1), value(P,V)}=T. [T@10]
+% :~ #sum{V,R,C : chessman(P,black,R,C,1), value(P,V)}=T. [-T@5]
