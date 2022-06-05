@@ -1,0 +1,4 @@
+\dynamicplan{c3}{Ka1,Qb1,qc1,Nc2,kc3}{b1c1,c3b3,c1b2}
+\dynamicplan{c3}{ka3,Kb1,nb2,Rc2,Nc3}{c3a2,a3b3,c2c3}
+\dynamicplan{c3}{Ka3,kb1,Nb2,Rb3,qc3}{b3c3,b1a1,c3c1}
+\dynamicplan{c3}{ka2,Nb1,nc1,Kc2,Bc3}{c3b2,c1b3,b1c3}
