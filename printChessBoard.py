@@ -3,10 +3,10 @@ import os
 def read_prolog(arr, dimension, k):
     board = [[["   "] * dimension for _ in range(dimension)] for _ in range(k + 2)]
     max_time = 0
+    solution = ['' for i in range(k)] 
+    print(k, solution)
     for chess in arr:
         if chess.startswith('chessman'):
-            
-        
             index = chess.find('(')
             index_end = chess.find(')')
             chesspiece, color, row, col, time = chess[index+1:index_end].split(',')
@@ -54,9 +54,17 @@ def read_prolog(arr, dimension, k):
             
             row, col = row-1, col-1
             board[time][row][col] = board[time][row][col][:-1] + 'X' if color == 'black' else 'O' + board[time][row][col][1:]
+
+        elif chess.startswith("move"):
+            index = chess.find('(')
+            index_end = chess.find(')')
+            row, col, newRow, newCol, time = chess[index+1:index_end].split(',')
+            row, newRow, time = int(row), int(newRow), int(time) -1
+            row, newRow = map_row_to_alphabet(row), map_row_to_alphabet(newRow)
+            solution[time] = f'{row}{col}{newRow}{newCol}'
         else: 
             print(chess) 
-    return board, max_time+1
+    return board, max_time+1, solution[:-1]
 
 
 def print_board(board, dimension):
@@ -69,9 +77,10 @@ def print_board(board, dimension):
     print(linebreak)
 
 
-def run_clingo(n, k, white_count, black_count, l):
+def run_clingo(n, k, white_count, black_count, l, model):
     # os.system(f"clingo asp/init.lp asp/pieces.lp asp/linear.lp asp/planner.lp -c n={n} -c k={k} -c white_count={white_count} -c black_count={black_count} --opt-mode optN -n {l} > output.txt")
-    os.system(f"clingo asp2\sebastian.lp asp2\linear.lp -c n={n} -c k={k} -c w={white_count} -c b={black_count} --opt-mode optN -n {l} > output.txt")
+    # os.system(f"clingo asp2\{model}.lp asp2\planner.lp asp2\linear.lp asp2\pieces.lp -c n={n} -c k={k} -c w={white_count} -c b={black_count} --opt-mode optN -n {l} > output.txt")
+    os.system(f"clingo -e record --restart-on-model asp2/{model}.lp asp2/planner.lp asp2/linear.lp asp2/pieces.lp -c n={n} -c k={k} -c w={white_count} -c b={black_count} -n {l} > output.txt")
 
 
 def read_output_and_print(n, k):
@@ -83,11 +92,59 @@ def read_output_and_print(n, k):
                 ans_count += 1
                 i += 1
                 arr = results[i].split()
-                board, max_time = read_prolog(arr, n, k)
+                board, max_time, solution = read_prolog(arr, n, k)
                 print("\nAnswer {}".format(ans_count) )
                 for j in range(max_time):
                     print_board(board[j], n)
+                
+                write_to_file(parse_latex_chessboard(board[0], ','.join(solution)))
 
+def write_to_file(latex_chessboard):
+    with open("latex.txt", "a") as writer:
+        writer.write(latex_chessboard)
+
+def map_row_to_alphabet(n):
+    return chr(ord('`')+n)
+
+def parse_latex_chessboard(board, solution):
+    def map_unicode_to_latex(cell):
+        if cell == '\u2655':
+            return f'Q{map_row_to_alphabet(i+1)}{j+1},'
+        elif cell == '\u265B':
+            return f'q{map_row_to_alphabet(i+1)}{j+1},'
+        elif cell == '\u2656':
+            return f'R{map_row_to_alphabet(i+1)}{j+1},'
+        elif cell == '\u265C':
+            return f'r{map_row_to_alphabet(i+1)}{j+1},'
+        elif cell == '\u2657':
+            return f'B{map_row_to_alphabet(i+1)}{j+1},'
+        elif cell == '\u265D':
+            return f'b{map_row_to_alphabet(i+1)}{j+1},'
+        elif cell == '\u2658':
+            return f'N{map_row_to_alphabet(i+1)}{j+1},'
+        elif cell == '\u265E':
+            return f'n{map_row_to_alphabet(i+1)}{j+1},'
+        elif cell == '\u2659':
+            return f'P{map_row_to_alphabet(i+1)}{j+1},'
+        elif cell == '\u265F':
+            return f'p{map_row_to_alphabet(i+1)}{j+1},'
+        elif cell == '\u2654':
+            return f'K{map_row_to_alphabet(i+1)}{j+1},'
+        elif cell == '\u265A':
+            return f'k{map_row_to_alphabet(i+1)}{j+1},'
+        else:
+            return ''
+
+    dimension = len(board)
+
+    latex_fen = f'\\dynamicplan{{{map_row_to_alphabet(dimension)}{dimension}}}{{'
+    for i in range(len(board)):
+        for j in range(len(board[i])):
+            # if there is a Piece on the board 
+            latex_fen += map_unicode_to_latex(board[i][j][1])
+    
+    return latex_fen[:-1] + f'}}{{{solution}}}\n'
+            
 
 if __name__ == "__main__":
     # val = ""
@@ -104,5 +161,6 @@ if __name__ == "__main__":
 
     k = int(input("Enter steps count \n"))
     l = int(input("Enter number of answers \n"))
-    run_clingo(n, k, white_count, black_count, l)
+    model = input("Dynamic (d) or Static (s)\n")
+    run_clingo(n, k, white_count, black_count, l, "dynamic" if model=='d' else 'static')
     read_output_and_print(n, k)
